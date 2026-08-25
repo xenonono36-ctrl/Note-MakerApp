@@ -20,6 +20,9 @@ import {
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 const sampleNote = `# The Art of Asking Better Questions
 
 ## A quick orientation
@@ -55,8 +58,8 @@ Try the **question ladder**: start broad, then narrow. Ask what someone notices,
 2. When might a closed question be more useful than an open one?
 3. Rewrite “Why is our product confusing?” using the question ladder.`;
 
-function NoteBody({ note }: { note: string }) {
-  const title = note.match(/^# (.+)$/m)?.[1] || "Untitled study note";
+function NoteBody({ note, topic }: { note: string; topic: string }) {
+  const title = note.match(/^# (.+)$/m)?.[1] || topic || "Untitled study note";
   const sections = Array.from(
     note.matchAll(/^## (.+)$/gm),
     (match) => match[1],
@@ -87,7 +90,8 @@ function NoteBody({ note }: { note: string }) {
           you remember.
         </div>
         <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
+          remarkPlugins={[remarkGfm, remarkMath]}
+          rehypePlugins={[rehypeKatex]}
           components={{
             h2: ({ children }) => {
               const index = sections.findIndex(
@@ -431,7 +435,7 @@ export default function Home() {
             </div>
           </div>
           <div ref={noteAreaRef}>
-            <NoteBody note={note} />
+            <NoteBody note={note} topic={topic} />
           </div>
           <footer className="footer-note">
             Drafted with Gemini <span>•</span> Edit freely, make it yours

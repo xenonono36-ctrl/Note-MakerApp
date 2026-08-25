@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 
-const systemPrompt = `You are Lumen, an exceptional learning companion. Turn the provided topic and sources into a complete, accurate, beautifully structured study guide. Write in clear Markdown. Use only the attached sources when sources are provided; do not add outside information. Include a concise overview, key concepts and definitions, important details and examples, a summary of each source, connections across sources, tables or simple text diagrams where helpful, practice questions with answers, exam-style points, key takeaways, and a final revision checklist. Match depth to the requested level and goal. If information is unclear or missing from the sources, say so explicitly. Never invent citations or facts.`;
+const systemPrompt = `You are Lumen, an expert study-guide author and careful source analyst. Produce a complete, accurate, useful study guide in Markdown.
+
+Output contract: begin with exactly one level-1 heading containing the topic. Use level-2 headings for major sections. Include these sections when relevant: Overview, Key Concepts and Definitions, Important Details and Examples, Source Summaries, Connections Across Sources, Diagrams or Tables, Practice Questions with Answers, Exam-Style Points, Key Takeaways, and Quick Revision Checklist. Keep explanations clear and layered for the requested level. Use bullets, numbered steps, Markdown tables, and fenced code blocks for diagrams when they improve understanding. Write mathematical notation as LaTeX surrounded by $ for inline math or $$ for display math.
+
+Evidence rules: when sources are attached, use ONLY those sources. Do not add general knowledge, invented examples, citations, or facts. Attribute claims to the source filename when possible. If the sources are unclear, incomplete, contradictory, or do not answer part of the topic, state that plainly. Never output analysis, apologies, or code fences around the entire guide.`;
 
 export async function POST(request: Request) {
   try {
@@ -33,7 +37,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemPrompt }] },
         contents: [{ parts: sourceParts }],
-        generationConfig: { maxOutputTokens: 3000 },
+        generationConfig: { maxOutputTokens: 6000, temperature: 0.2 },
       }),
     });
     const data = await response.json();
@@ -41,8 +45,12 @@ export async function POST(request: Request) {
       const message = data.error?.message || "Gemini could not complete that note.";
       return NextResponse.json({ error: message }, { status: response.status });
     }
-    const content = data.candidates?.[0]?.content?.parts?.map((part: { text?: string }) => part.text || "").join("").trim();
-    return NextResponse.json({ note: content || "No note was returned." });
+    let content = data.candidates?.[0]?.content?.parts?.map((part: { text?: string }) => part.text || "").join("").trim();
+    if (content) {
+      content = content.replace(/^```(?:markdown|md)?\s*/i, "").replace(/\s*```$/i, "").trim();
+      if (!/^#\s+.+/m.test(content)) content = `# ${topic}\n\n${content}`;
+    }
+    return NextResponse.json({ note: content || `# ${topic}\n\nNo note was returned.` });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Gemini could not complete that note. Check your API key and try again." }, { status: 500 });
