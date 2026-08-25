@@ -27,6 +27,7 @@ import "katex/dist/katex.min.css";
 import Silk from "./components/Silk";
 import Dither from "./components/Dither";
 import TargetCursor from "./components/TargetCursor";
+import { buildStudyRoutine } from "../lib/studyRoutine";
 
 const sampleNote = `# The Art of Asking Better Questions
 
@@ -131,6 +132,9 @@ export default function Home() {
   const [goal, setGoal] = useState(
     "Understand and remember the key information",
   );
+  const [prepAmount, setPrepAmount] = useState("45");
+  const [prepUnit, setPrepUnit] = useState<"minutes" | "hours" | "days">("minutes");
+  const [routine, setRoutine] = useState("");
   const [note, setNote] = useState(sampleNote);
   const [sources, setSources] = useState<File[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -149,6 +153,8 @@ export default function Home() {
       formData.append("format", format);
       formData.append("focus", focus);
       formData.append("goal", goal);
+      formData.append("prepAmount", String(prepAmount));
+      formData.append("prepUnit", String(prepUnit));
       sources.forEach((file) => formData.append("sources", file));
       const response = await fetch("/api/generate", {
         method: "POST",
@@ -156,8 +162,10 @@ export default function Home() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
+      setRoutine(buildStudyRoutine(topic, prepAmount, goal, prepUnit));
       setNote(data.note);
     } catch (error) {
+      setRoutine(buildStudyRoutine(topic, prepAmount, goal, prepUnit));
       setNote(
         `## Something needs attention\n\n${error instanceof Error ? error.message : "Unable to generate a note."}`,
       );
@@ -232,6 +240,9 @@ export default function Home() {
           onClick={() => {
             setTopic("");
             setGoal("Understand and remember the key information");
+            setPrepAmount("45");
+            setPrepUnit("minutes");
+            setRoutine("");
             setSources([]);
             setNote(sampleNote);
           }}
@@ -396,6 +407,34 @@ export default function Home() {
                 <option value="Apply the ideas in practice" />
               </datalist>
             </div>
+            <div className="goal-field">
+              <label htmlFor="prepAmount">How much time do you have to prepare?</label>
+              <div className="time-input-row">
+                <div className="goal-input-shell time-input-shell">
+                  <Target size={17} aria-hidden="true" />
+                  <input
+                    id="prepAmount"
+                    type="number"
+                    min={1}
+                    max={30}
+                    step={1}
+                    value={prepAmount}
+                    onChange={(event) => setPrepAmount(event.target.value)}
+                    placeholder="45"
+                  />
+                </div>
+                <select
+                  className="time-unit-select"
+                  value={prepUnit}
+                  onChange={(event) => setPrepUnit(event.target.value as "minutes" | "hours" | "days")}
+                >
+                  <option value="minutes">Minutes</option>
+                  <option value="hours">Hours</option>
+                  <option value="days">Days</option>
+                </select>
+              </div>
+              <small className="helper-text">Works for short sessions, long study blocks, or multi-day prep</small>
+            </div>
             <div className="controls">
               <div className="select-wrap">
                 <span>Level</span>
@@ -472,6 +511,22 @@ export default function Home() {
               </button>
             </div>
           </div>
+          {routine && (
+            <div className="routine-card">
+              <div className="routine-card-header">
+                <span className="routine-kicker">Study routine</span>
+                <strong>
+                  {prepAmount} {prepUnit}
+                </strong>
+              </div>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm, remarkMath]}
+                rehypePlugins={[rehypeKatex]}
+              >
+                {routine}
+              </ReactMarkdown>
+            </div>
+          )}
           <div ref={noteAreaRef}>
             <NoteBody note={note} topic={topic} />
           </div>

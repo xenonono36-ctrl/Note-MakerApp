@@ -106,6 +106,76 @@
     transform: translateY(-1px)
 }
 
+.helper-text {
+    display: block;
+    margin-top: 6px;
+    color: #8c819d;
+    font-size: 11px
+}
+
+.time-input-row {
+    display: flex;
+    align-items: center;
+    gap: 12px
+}
+
+.time-input-shell {
+    flex: 1;
+    min-width: 0
+}
+
+.time-unit-select {
+    min-width: 115px;
+    height: 48px;
+    padding: 0 12px;
+    border: 1px solid rgba(196, 145, 255, .26);
+    border-radius: 11px;
+    background: linear-gradient(135deg, rgba(38, 20, 57, .75), rgba(12, 7, 20, .82));
+    color: #f5f3ff;
+    outline: none
+}
+
+.routine-card {
+    margin: 24px 0 0;
+    padding: 18px 20px 12px;
+    border: 1px solid rgba(196, 145, 255, .25);
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(26, 16, 40, .9), rgba(13, 18, 26, .8));
+    box-shadow: 0 16px 38px rgba(11, 8, 18, .18)
+}
+
+.routine-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+    color: #efe7ff
+}
+
+.routine-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font: 600 10px/1 'DM Mono', monospace;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #c084fc
+}
+
+.routine-card h2,
+.routine-card h3,
+.routine-card p,
+.routine-card li,
+.routine-card strong {
+    color: #f5f3ff
+}
+
+.routine-card ul,
+.routine-card ol {
+    margin: 10px 0 12px 18px
+}
+
 @media(max-width:800px) {
     .controls {
         grid-template-columns: repeat(2, minmax(0, 1fr))

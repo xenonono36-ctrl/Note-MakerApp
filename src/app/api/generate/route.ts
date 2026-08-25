@@ -33,8 +33,12 @@ export async function POST(request: Request) {
     const format = String(formData.get("format") || "Study guide");
     const focus = String(formData.get("focus") || "Balanced coverage");
     const goal = String(formData.get("goal") || "Understand and remember the key information");
+    const prepAmount = Number(formData.get("prepAmount") || 45);
+    const prepUnit = String(formData.get("prepUnit") || "minutes");
     const files = formData.getAll("sources").filter((value): value is File => value instanceof File && value.size > 0);
     if (!topic?.trim()) return NextResponse.json({ error: "Please enter a topic." }, { status: 400 });
+    const multiplier = prepUnit === "days" ? 24 * 60 : prepUnit === "hours" ? 60 : 1;
+    const safePrepMinutes = Math.min(30 * 24 * 60, Math.max(15, Math.round((prepAmount || 45) * multiplier)));
     if (files.length > 8) return NextResponse.json({ error: "Please attach no more than 8 source files." }, { status: 400 });
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return NextResponse.json({ error: "Add GEMINI_API_KEY to .env.local to generate notes." }, { status: 503 });
@@ -65,7 +69,7 @@ export async function POST(request: Request) {
     if (omittedTextSources > 0) {
       sourceParts.push({ text: `NOTICE: ${omittedTextSources} text source${omittedTextSources === 1 ? " was" : "s were"} truncated or omitted because of the context budget. Do not treat missing portions as evidence.` });
     }
-    sourceParts.push({ text: `Create the study guide for this topic: ${topic}\nLevel: ${level}\nFormat: ${format}\nFocus: ${focus}\nGoal: ${goal}\n\nWhen sources are attached, use only those sources as evidence. Clearly say when the sources do not contain enough information. Do not invent facts or citations. Cover the source comprehensively, including later sections and important details, while keeping the writing concise enough to finish the complete guide.` });
+    sourceParts.push({ text: `Create the study guide for this topic: ${topic}\nLevel: ${level}\nFormat: ${format}\nFocus: ${focus}\nGoal: ${goal}\nAvailable study time: ${safePrepMinutes} minutes (${prepAmount} ${prepUnit}).\n\nDesign a realistic study routine that fits this time budget. Include a short phase plan with warm-up, core study, and review blocks when useful. When sources are attached, use only those sources as evidence. Clearly say when the sources do not contain enough information. Do not invent facts or citations. Cover the source comprehensively, including later sections and important details, while keeping the writing concise enough to finish the complete guide.` });
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
