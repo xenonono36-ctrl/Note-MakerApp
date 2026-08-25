@@ -135,6 +135,27 @@
     outline: none
 }
 
+.convert-time-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 6px 9px;
+    border: 1px solid rgba(196, 145, 255, .26);
+    border-radius: 7px;
+    background: rgba(192, 132, 252, .08);
+    color: #d8b4fe;
+    font-size: 11px;
+    font-weight: 600;
+    transition: border-color .2s ease, background .2s ease, color .2s ease
+}
+
+.convert-time-button:hover {
+    border-color: #c084fc;
+    background: rgba(192, 132, 252, .16);
+    color: #fff
+}
+
 .routine-card {
     margin: 24px 0 0;
     padding: 18px 20px 12px;

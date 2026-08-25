@@ -15,6 +15,7 @@ import {
   Sparkles,
   Sun,
   Target,
+  ArrowRightLeft,
   WandSparkles,
   X,
 } from "lucide-react";
@@ -501,8 +502,8 @@ export default function Home() {
                     id="prepAmount"
                     type="number"
                     min={1}
-                    max={30}
-                    step={1}
+                    max={prepUnit === "minutes" ? 24 * 60 : prepUnit === "hours" ? 24 * 30 : 30}
+                    step={prepUnit === "minutes" ? 1 : 0.5}
                     value={prepAmount}
                     onChange={(event) => setPrepAmount(event.target.value)}
                     placeholder="45"
@@ -518,6 +519,18 @@ export default function Home() {
                   <option value="days">Days</option>
                 </select>
               </div>
+              {prepUnit === "minutes" && Number(prepAmount) >= 60 && (
+                <button
+                  type="button"
+                  className="convert-time-button cursor-target"
+                  onClick={() => {
+                    setPrepAmount(String(Number((Number(prepAmount) / 60).toFixed(1))));
+                    setPrepUnit("hours");
+                  }}
+                >
+                  <ArrowRightLeft size={14} /> Use hours
+                </button>
+              )}
               <small className="helper-text">Works for short sessions, long study blocks, or multi-day prep</small>
             </div>
             <div className="controls">
