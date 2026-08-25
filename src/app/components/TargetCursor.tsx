@@ -18,7 +18,7 @@ export default function TargetCursor({ targetSelector = ".cursor-target", hideDe
     const corners = cornersRef.current;
     const originalCursor = document.body.style.cursor;
     if (hideDefaultCursor) document.body.style.cursor = "none";
-    const move = (event: MouseEvent) => gsap.to(wrapper, { x: event.clientX, y: event.clientY, duration: 0.1, ease: "power3.out", overwrite: true });
+    const move = (event: MouseEvent) => gsap.set(wrapper, { x: event.clientX, y: event.clientY });
     const down = () => { gsap.to(wrapper, { scale: 0.88, duration: 0.15 }); gsap.to(dotRef.current, { scale: 0.7, duration: 0.15 }); };
     const up = () => { gsap.to(wrapper, { scale: 1, duration: 0.2 }); gsap.to(dotRef.current, { scale: 1, duration: 0.2 }); };
     let active: Element | null = null;

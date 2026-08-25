@@ -851,7 +851,11 @@
     width: 150px;
     height: 82px;
     object-fit: contain;
-    object-position: left center;
+    object-position: center;
+}
+
+.sidebar .brand {
+    justify-content: center;
 }
 
 .sidebar-collapsed .brand-logo {
