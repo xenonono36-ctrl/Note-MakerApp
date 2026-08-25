@@ -70,9 +70,15 @@ export default function Home() {
   async function generateNote() { if (!topic.trim()) return; setIsGenerating(true); try { const response = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, level, format, focus }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error); setNote(data.note); } catch (error) { setNote(`## Something needs attention\n\n${error instanceof Error ? error.message : "Unable to generate a note."}`); } finally { setIsGenerating(false); } }
   async function copyNote() { await navigator.clipboard.writeText(note); setCopied(true); window.setTimeout(() => setCopied(false), 1800); }
   function getHtmlDocument() {
-    const styles = Array.from(document.querySelectorAll("style")).map((style) => style.textContent || "").join("\n");
+    const styles = Array.from(document.styleSheets).map((sheet) => {
+      try {
+        return Array.from(sheet.cssRules).map((rule) => rule.cssText).join("\n");
+      } catch {
+        return "";
+      }
+    }).join("\n");
     const title = topic.trim() || "Lumen Study Note";
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title><style>${styles}</style></head><body><main class="study-guide-export">${noteAreaRef.current?.innerHTML || ""}</main></body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title><style>${styles}body{margin:0;background:#e4decb}.study-guide-export{min-height:100vh}</style></head><body><main class="study-guide-export">${noteAreaRef.current?.innerHTML || ""}</main></body></html>`;
   }
   function createHtmlUrl() {
     return URL.createObjectURL(new Blob([getHtmlDocument()], { type: "text/html" }));
@@ -92,7 +98,11 @@ export default function Home() {
   }
   function openHtmlNote() {
     if (!noteAreaRef.current) return;
-    window.open(createHtmlUrl(), "_blank", "noopener,noreferrer");
+    const newWindow = window.open("", "_blank");
+    if (!newWindow) return;
+    newWindow.document.open();
+    newWindow.document.write(getHtmlDocument());
+    newWindow.document.close();
   }
   return <main className={`${dark ? "app dark" : "app"}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}>
     <aside className="sidebar"><div className="brand"><span className="brand-mark"><Sparkles size={16} /></span><span className="brand-name">Lumen</span><span className="brand-dot" /></div><button className="new-note" onClick={() => { setTopic(""); setNote(sampleNote); }}><WandSparkles size={16} /><span className="button-label">New note</span><span className="shortcut">⌘ N</span></button><div className="side-label">Your library</div><button className="library-item active"><FileText size={16} /><span>Asking better questions</span></button><button className="library-item"><FileText size={16} /><span>Photosynthesis</span></button><button className="library-item"><FileText size={16} /><span>Design principles</span></button><div className="sidebar-bottom"><button className="plain-button" onClick={() => setSidebarCollapsed(!sidebarCollapsed)} aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}><PanelLeft size={16} /><span className="button-label">{sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}</span></button><div className="profile"><span>AM</span><div className="profile-details"><strong>Alex Morgan</strong><small>Personal workspace</small></div><ChevronDown size={14} /></div></div></aside>
