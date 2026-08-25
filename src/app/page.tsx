@@ -318,13 +318,16 @@ export default function Home() {
           </div>
           <div className="builder-panel">
             <label htmlFor="topic">Topic or question</label>
-            <textarea
-              id="topic"
-              value={topic}
-              onChange={(event) => setTopic(event.target.value)}
-              placeholder="e.g. How do neural networks learn?"
-              rows={2}
-            />
+            <div className="topic-input-shell">
+              <textarea
+                id="topic"
+                value={topic}
+                onChange={(event) => setTopic(event.target.value)}
+                placeholder="e.g. How do neural networks learn?"
+                rows={3}
+              />
+              <span className="topic-input-hint">Press enter with a clear question</span>
+            </div>
             <div className="source-picker">
               <input
                 id="sources"
