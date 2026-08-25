@@ -301,11 +301,13 @@ export default function Home() {
   }
   function openHtmlNote() {
     if (!noteAreaRef.current) return;
-    const newWindow = window.open("", "_blank");
-    if (!newWindow) return;
-    newWindow.document.open();
-    newWindow.document.write(getHtmlDocument());
-    newWindow.document.close();
+    const url = createHtmlUrl();
+    const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+    if (!newWindow) {
+      URL.revokeObjectURL(url);
+      return;
+    }
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
   return (
     <main
