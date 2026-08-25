@@ -576,21 +576,6 @@
     line-height: 1.5;
 }
 
-.library-count {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    min-height: 28px;
-    margin: 0 0 8px;
-    color: var(--muted);
-    font: 11px 'DM Mono', monospace;
-}
-
-.sidebar-collapsed .library-count {
-    display: flex;
-}
-
 .library-item > svg {
     flex: 0 0 16px;
     width: 16px;
@@ -606,10 +591,6 @@
     flex: 0 0 16px;
     width: 16px;
     height: 16px;
-}
-
-.sidebar-collapsed .sidebar:hover .library-count {
-    display: none;
 }
 
 .topbar {

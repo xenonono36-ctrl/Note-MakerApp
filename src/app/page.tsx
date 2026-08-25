@@ -8,7 +8,6 @@ import {
   FileCode,
   FileText,
   LoaderCircle,
-  Library,
   Paperclip,
   PanelLeft,
   Sparkles,
@@ -341,10 +340,6 @@ export default function Home() {
           <span className="shortcut">⌘ N</span>
         </button>
         <div className="side-label">Your library</div>
-        <div className="library-count" aria-label={`${library.length} saved notes`}>
-          <Library size={14} />
-          <span>{library.length}</span>
-        </div>
         {library.length === 0 ? (
           <div className="library-empty">No saved notes yet.</div>
         ) : (
