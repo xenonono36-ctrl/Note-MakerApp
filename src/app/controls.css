@@ -632,12 +632,45 @@
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    background: linear-gradient(110deg, rgba(255,255,255,.13), rgba(255,255,255,.045) 42%, rgba(192,132,252,.12)), rgba(10,7,18,.68);
-    border-right-color: rgba(216,180,254,.28);
-    box-shadow: 14px 0 42px rgba(5,3,12,.24), inset -1px 0 rgba(255,255,255,.12), inset 0 1px rgba(255,255,255,.14), inset 0 -1px rgba(255,255,255,.05);
-    backdrop-filter: blur(28px) saturate(155%);
-    -webkit-backdrop-filter: blur(28px) saturate(155%);
+    color: #241b31;
+    background: linear-gradient(145deg, rgba(255,255,255,.97), rgba(248,244,255,.9) 58%, rgba(238,228,252,.9));
+    border-right-color: rgba(255,255,255,.82);
+    box-shadow: 14px 0 42px rgba(5,3,12,.18), inset -1px 0 rgba(255,255,255,.92), inset 0 1px rgba(255,255,255,.98), inset 0 -1px rgba(192,132,252,.2);
+    backdrop-filter: blur(22px) saturate(140%);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
     transition: width .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+
+.sidebar .side-label,
+.sidebar .library-count,
+.sidebar .plain-button,
+.sidebar .profile,
+.sidebar .library-empty {
+    color: #685b73;
+}
+
+.sidebar .library-item {
+    color: #685b73;
+}
+
+.sidebar .library-item.active {
+    color: #241b31;
+    background: rgba(168,85,247,.12);
+}
+
+.sidebar .library-empty {
+    border-color: rgba(111,88,132,.24);
+    background: rgba(255,255,255,.34);
+}
+
+.sidebar .plain-button:hover,
+.sidebar .library-item:hover {
+    background: rgba(168,85,247,.1);
+    color: #6d28d9;
+}
+
+.sidebar .profile {
+    border-top-color: rgba(111,88,132,.2);
 }
 
 .sidebar-collapsed .sidebar {
