@@ -4,13 +4,12 @@ import { gsap } from "gsap";
 import { useEffect, useMemo, useRef } from "react";
 import "./TargetCursor.css";
 
-type TargetCursorProps = { targetSelector?: string; spinDuration?: number; hideDefaultCursor?: boolean; hoverDuration?: number; parallaxOn?: boolean; cursorColor?: string; cursorColorOnTarget?: string };
+type TargetCursorProps = { targetSelector?: string; hideDefaultCursor?: boolean; hoverDuration?: number; parallaxOn?: boolean; cursorColor?: string; cursorColorOnTarget?: string };
 
-export default function TargetCursor({ targetSelector = ".cursor-target", spinDuration = 2, hideDefaultCursor = true, hoverDuration = 0.2, parallaxOn = true, cursorColor = "#ffffff", cursorColorOnTarget = "#d8b4fe" }: TargetCursorProps) {
+export default function TargetCursor({ targetSelector = ".cursor-target", hideDefaultCursor = true, hoverDuration = 0.2, parallaxOn = true, cursorColor = "#ffffff", cursorColorOnTarget = "#d8b4fe" }: TargetCursorProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
   const cornersRef = useRef<HTMLDivElement[]>([]);
-  const spinRef = useRef<gsap.core.Tween | null>(null);
   const isMobile = useMemo(() => typeof window !== "undefined" && (window.innerWidth <= 768 || "ontouchstart" in window || navigator.maxTouchPoints > 0), []);
 
   useEffect(() => {
@@ -39,10 +38,9 @@ export default function TargetCursor({ targetSelector = ".cursor-target", spinDu
       if (parallaxOn) { parallax = (event) => { const moveEvent = event as MouseEvent; const x = ((moveEvent.clientX - rect.left) / rect.width - 0.5) * 8; const y = ((moveEvent.clientY - rect.top) / rect.height - 0.5) * 8; corners.forEach((corner, index) => gsap.to(corner, { x: positions[index].x - (gsap.getProperty(wrapper, "x") as number) + x, y: positions[index].y - (gsap.getProperty(wrapper, "y") as number) + y, duration: 0.15, overwrite: true })); }; target.addEventListener("mousemove", parallax); }
     };
     wrapper.style.color = cursorColor;
-    spinRef.current = gsap.to(wrapper, { rotation: 360, duration: spinDuration, ease: "none", repeat: -1 });
     window.addEventListener("mousemove", move); window.addEventListener("mouseover", enter); window.addEventListener("mousedown", down); window.addEventListener("mouseup", up);
-    return () => { if (leave) leave(); spinRef.current?.kill(); window.removeEventListener("mousemove", move); window.removeEventListener("mouseover", enter); window.removeEventListener("mousedown", down); window.removeEventListener("mouseup", up); document.body.style.cursor = originalCursor; };
-  }, [cursorColor, cursorColorOnTarget, hideDefaultCursor, hoverDuration, isMobile, parallaxOn, spinDuration, targetSelector]);
+    return () => { if (leave) leave(); window.removeEventListener("mousemove", move); window.removeEventListener("mouseover", enter); window.removeEventListener("mousedown", down); window.removeEventListener("mouseup", up); document.body.style.cursor = originalCursor; };
+  }, [cursorColor, cursorColorOnTarget, hideDefaultCursor, hoverDuration, isMobile, parallaxOn, targetSelector]);
 
   if (isMobile) return null;
   const addCorner = (element: HTMLDivElement | null) => { if (element && !cornersRef.current.includes(element)) cornersRef.current.push(element); };

@@ -314,7 +314,7 @@ export default function Home() {
     <main
       className={`app${alternateBackground ? " atmosphere-alt" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}
     >
-      <TargetCursor spinDuration={2.2} hideDefaultCursor parallaxOn cursorColor="#ffffff" cursorColorOnTarget="#c084fc" />
+      <TargetCursor hideDefaultCursor parallaxOn cursorColor="#ffffff" cursorColorOnTarget="#c084fc" />
       <aside
         className="sidebar"
         onMouseEnter={() => setSidebarCollapsed(false)}
