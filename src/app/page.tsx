@@ -269,8 +269,8 @@ export default function Home() {
         <div className="workspace-atmosphere">
           {alternateBackground ? (
             <Dither
-              waveColor={[0.48, 0.16, 0.9]}
-              waveSpeed={0.08}
+              waveColor={[0.38823529411764707, 0.4, 0.9450980392156862]}
+              waveSpeed={0.05}
               waveFrequency={3}
               waveAmplitude={0.35}
               colorNum={4}
