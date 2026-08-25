@@ -72,7 +72,7 @@ export default function CardNav({
           </button>
           <div className="card-nav-brand">
             <span className="card-nav-mark"><Sparkles size={14} /></span>
-            <span>Lumen</span>
+            <span>Chrono</span>
           </div>
           <button type="button" className="card-nav-cta" onClick={onNewNote}>
             <FilePlus2 size={15} />

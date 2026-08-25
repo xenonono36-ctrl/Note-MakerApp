@@ -274,7 +274,7 @@ export default function Home() {
         }
       })
       .join("\n");
-    const title = topic.trim() || "Lumen Study Note";
+    const title = topic.trim() || "Chrono Study Note";
     return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title><style>${styles}body{margin:0;background:#e4decb}.study-guide-export{min-height:100vh}</style></head><body><main class="study-guide-export">${noteAreaRef.current?.innerHTML || ""}</main></body></html>`;
   }
   function createHtmlUrl() {
@@ -288,7 +288,7 @@ export default function Home() {
     try {
       const link = document.createElement("a");
       link.href = createHtmlUrl();
-      link.download = `${(topic.trim() || "lumen-study-note")
+      link.download = `${(topic.trim() || "chrono-study-note")
         .replace(/[^a-z0-9]+/gi, "-")
         .replace(/^-|-$/g, "")
         .toLowerCase()}.html`;
@@ -318,7 +318,7 @@ export default function Home() {
           <span className="brand-mark">
             <Sparkles size={16} />
           </span>
-          <span className="brand-name">Lumen</span>
+          <span className="brand-name">Chrono</span>
           <span className="brand-dot" />
         </div>
         <button
