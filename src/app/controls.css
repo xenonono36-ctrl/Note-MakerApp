@@ -502,6 +502,23 @@
     display: flex;
 }
 
+.library-item > svg {
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.sidebar-collapsed .library-item {
+    min-width: 48px;
+}
+
+.sidebar-collapsed .library-item > svg {
+    display: block;
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+}
+
 .sidebar-collapsed .sidebar:hover .library-count {
     display: none;
 }
