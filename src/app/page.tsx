@@ -23,6 +23,9 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
+import Ferrofluid from "./components/Ferrofluid";
+
+const ferrofluidColors = ["#c9ef65", "#82d8c8", "#ffffff"];
 const sampleNote = `# The Art of Asking Better Questions
 
 ## A quick orientation
@@ -263,6 +266,20 @@ export default function Home() {
         </div>
       </aside>
       <section className="workspace">
+        <div className="workspace-atmosphere">
+          <Ferrofluid
+            colors={ferrofluidColors}
+            speed={0.35}
+            scale={1.6}
+            turbulence={1}
+            glow={2}
+            opacity={0.28}
+            flowDirection="down"
+            mouseInteraction
+            mouseStrength={1}
+            mouseRadius={0.35}
+          />
+        </div>
         <header className="topbar">
           <button className="mobile-menu">
             <Menu size={19} />
