@@ -45,13 +45,19 @@ export function buildStudyRoutine(
 
   return `## Study routine
 
-**Topic:** ${topic || "your chosen subject"}
-**Total available time:** ${formatStudyDuration(totalMinutes)}
-**Focus:** ${focusLine}
+| Plan detail | Guidance |
+| --- | --- |
+| Topic | ${topic || "Your chosen subject"} |
+| Available time | ${formatStudyDuration(totalMinutes)} |
+| Focus | ${focusLine} |
 
-1. **Warm-up (${warmup} min):** Scan the topic, note the heading structure, and list the 3 most important ideas.
-2. **Core study (${core} min):** Work through the main concept in focused chunks. Explain it aloud and connect the idea to an example or source.
-3. **Review (${review} min):** Summarize the topic in your own words, test recall quickly, and mark anything to revisit.
+### Phase plan
+
+| Phase | Time | What to do |
+| --- | ---: | --- |
+| Warm-up | ${warmup} min | Scan the topic, note the heading structure, and list the 3 most important ideas. |
+| Core study | ${core} min | Work through the main concept in focused chunks. Explain it aloud and connect the idea to an example or source. |
+| Review | ${review} min | Summarize the topic in your own words, test recall quickly, and mark anything to revisit. |
 
 **Quick rhythm:** Keep the last block focused on recall and checking gaps. Short review sessions usually stick better than passive reading.
 `;
