@@ -186,7 +186,7 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [alternateBackground, setAlternateBackground] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const noteAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -315,7 +315,11 @@ export default function Home() {
       className={`app${alternateBackground ? " atmosphere-alt" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}
     >
       <TargetCursor spinDuration={2.2} hideDefaultCursor parallaxOn cursorColor="#ffffff" cursorColorOnTarget="#c084fc" />
-      <aside className="sidebar">
+      <aside
+        className="sidebar"
+        onMouseEnter={() => setSidebarCollapsed(false)}
+        onMouseLeave={() => setSidebarCollapsed(true)}
+      >
         <div className="brand">
           <Image className="brand-logo" src={chronoLogo} alt="Chrono" priority />
         </div>

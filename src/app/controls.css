@@ -543,11 +543,25 @@
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    background: linear-gradient(155deg, rgba(255,255,255,.1), rgba(10,7,18,.62) 38%, rgba(192,132,252,.1));
-    border-right-color: rgba(216,180,254,.2);
-    box-shadow: 14px 0 42px rgba(5,3,12,.18), inset -1px 0 rgba(255,255,255,.08), inset 0 1px rgba(255,255,255,.08);
-    backdrop-filter: blur(24px) saturate(145%);
-    -webkit-backdrop-filter: blur(24px) saturate(145%);
+    background: linear-gradient(110deg, rgba(255,255,255,.13), rgba(255,255,255,.045) 42%, rgba(192,132,252,.12)), rgba(10,7,18,.68);
+    border-right-color: rgba(216,180,254,.28);
+    box-shadow: 14px 0 42px rgba(5,3,12,.24), inset -1px 0 rgba(255,255,255,.12), inset 0 1px rgba(255,255,255,.14), inset 0 -1px rgba(255,255,255,.05);
+    backdrop-filter: blur(28px) saturate(155%);
+    -webkit-backdrop-filter: blur(28px) saturate(155%);
+    transition: width .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+
+.sidebar-collapsed .sidebar {
+    width: 68px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.sidebar-collapsed .sidebar:hover {
+    width: 245px;
+    padding-left: 15px;
+    padding-right: 15px;
+    box-shadow: 14px 0 52px rgba(5,3,12,.38), inset -1px 0 rgba(255,255,255,.16), inset 0 1px rgba(255,255,255,.14);
 }
 
 .sidebar::before {
@@ -559,6 +573,27 @@
     background: linear-gradient(90deg, transparent, rgba(216,180,254,.55), rgba(103,232,249,.3), transparent);
     content: "";
     pointer-events: none;
+}
+
+.sidebar::after {
+    position: absolute;
+    top: 0;
+    left: -35%;
+    width: 28%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent);
+    content: "";
+    pointer-events: none;
+    transform: skewX(-18deg);
+    transition: left .7s ease;
+}
+
+.sidebar:hover::after {
+    left: 108%;
+}
+
+.sidebar-collapsed .sidebar:hover {
+    box-shadow: 14px 0 52px rgba(5,3,12,.38), inset -1px 0 rgba(255,255,255,.16), inset 0 1px rgba(255,255,255,.14);
 }
 
 .sidebar > * {
