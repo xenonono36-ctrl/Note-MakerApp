@@ -166,18 +166,17 @@ function NoteBody({ note, topic }: { note: string; topic: string }) {
   );
 }
 
-function TimeUnitDropdown({
+function Dropdown({
+  label,
   value,
+  options,
   onChange,
 }: {
-  value: "minutes" | "hours" | "days";
-  onChange: (value: "minutes" | "hours" | "days") => void;
+  label?: string;
+  value: string;
+  options: Array<{ value: string; label: string }>;
+  onChange: (value: string) => void;
 }) {
-  const options: Array<{ value: "minutes" | "hours" | "days"; label: string }> = [
-    { value: "minutes", label: "Minutes" },
-    { value: "hours", label: "Hours" },
-    { value: "days", label: "Days" },
-  ];
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const currentIndex = options.findIndex((option) => option.value === value);
@@ -205,7 +204,8 @@ function TimeUnitDropdown({
   }
 
   return (
-    <div className={`time-unit-dropdown ${open ? "is-open" : ""}`} ref={dropdownRef}>
+    <div className={`dropdown ${label ? "select-wrap" : "time-unit-dropdown"} ${open ? "is-open" : ""}`} ref={dropdownRef}>
+      {label && <span>{label}</span>}
       <button
         className="time-unit-trigger"
         type="button"
@@ -218,7 +218,7 @@ function TimeUnitDropdown({
         <ChevronDown size={16} aria-hidden="true" />
       </button>
       {open && (
-        <div className="time-unit-menu" role="listbox" aria-label="Preparation time unit">
+        <div className="time-unit-menu" role="listbox" aria-label={label || "Preparation time unit"}>
           {options.map((option) => (
             <button
               className={`time-unit-option ${option.value === value ? "active" : ""}`}
@@ -603,7 +603,11 @@ export default function Home() {
                     placeholder="45"
                   />
                 </div>
-                <TimeUnitDropdown value={prepUnit} onChange={setPrepUnit} />
+                <Dropdown
+                  value={prepUnit}
+                  options={[{ value: "minutes", label: "Minutes" }, { value: "hours", label: "Hours" }, { value: "days", label: "Days" }]}
+                  onChange={(value) => setPrepUnit(value as "minutes" | "hours" | "days")}
+                />
               </div>
               {prepUnit === "minutes" && Number(prepAmount) >= 60 && (
                 <button
@@ -620,39 +624,9 @@ export default function Home() {
               <small className="helper-text">Works for short sessions, long study blocks, or multi-day prep</small>
             </div>
             <div className="controls">
-              <div className="select-wrap">
-                <span>Level</span>
-                <select
-                  value={level}
-                  onChange={(event) => setLevel(event.target.value)}
-                >
-                  <option>Beginner</option>
-                  <option>Intermediate</option>
-                  <option>Advanced</option>
-                </select>
-              </div>
-              <div className="select-wrap">
-                <span>Format</span>
-                <select
-                  value={format}
-                  onChange={(event) => setFormat(event.target.value)}
-                >
-                  <option>Study guide</option>
-                  <option>Deep dive</option>
-                  <option>Cheat sheet</option>
-                </select>
-              </div>
-              <div className="select-wrap">
-                <span>Focus</span>
-                <select
-                  value={focus}
-                  onChange={(event) => setFocus(event.target.value)}
-                >
-                  <option>Balanced coverage</option>
-                  <option>Practical examples</option>
-                  <option>Exam preparation</option>
-                </select>
-              </div>
+              <Dropdown label="Level" value={level} options={["Beginner", "Intermediate", "Advanced"].map((option) => ({ value: option, label: option }))} onChange={setLevel} />
+              <Dropdown label="Format" value={format} options={["Study guide", "Deep dive", "Cheat sheet"].map((option) => ({ value: option, label: option }))} onChange={setFormat} />
+              <Dropdown label="Focus" value={focus} options={["Balanced coverage", "Practical examples", "Exam preparation"].map((option) => ({ value: option, label: option }))} onChange={setFocus} />
               <button
                 className="generate cursor-target"
                 onClick={generateNote}
