@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import {
   Check,
   ChevronDown,
@@ -162,6 +162,81 @@ function NoteBody({ note, topic }: { note: string; topic: string }) {
           {renderableContent}
         </ReactMarkdown>
       </div>
+    </div>
+  );
+}
+
+function TimeUnitDropdown({
+  value,
+  onChange,
+}: {
+  value: "minutes" | "hours" | "days";
+  onChange: (value: "minutes" | "hours" | "days") => void;
+}) {
+  const options: Array<{ value: "minutes" | "hours" | "days"; label: string }> = [
+    { value: "minutes", label: "Minutes" },
+    { value: "hours", label: "Hours" },
+    { value: "days", label: "Days" },
+  ];
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const currentIndex = options.findIndex((option) => option.value === value);
+
+  useEffect(() => {
+    if (!open) return;
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      if (!dropdownRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
+  }, [open]);
+
+  function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+    if (event.key === "Escape") {
+      setOpen(false);
+      return;
+    }
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+    event.preventDefault();
+    const direction = event.key === "ArrowDown" ? 1 : -1;
+    const nextIndex = (currentIndex + direction + options.length) % options.length;
+    onChange(options[nextIndex].value);
+    setOpen(true);
+  }
+
+  return (
+    <div className={`time-unit-dropdown ${open ? "is-open" : ""}`} ref={dropdownRef}>
+      <button
+        className="time-unit-trigger"
+        type="button"
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        onClick={() => setOpen((current) => !current)}
+        onKeyDown={handleKeyDown}
+      >
+        {options[currentIndex].label}
+        <ChevronDown size={16} aria-hidden="true" />
+      </button>
+      {open && (
+        <div className="time-unit-menu" role="listbox" aria-label="Preparation time unit">
+          {options.map((option) => (
+            <button
+              className={`time-unit-option ${option.value === value ? "active" : ""}`}
+              type="button"
+              role="option"
+              aria-selected={option.value === value}
+              key={option.value}
+              onClick={() => {
+                onChange(option.value);
+                setOpen(false);
+              }}
+            >
+              {option.label}
+              {option.value === value && <Check size={15} aria-hidden="true" />}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -528,15 +603,7 @@ export default function Home() {
                     placeholder="45"
                   />
                 </div>
-                <select
-                  className="time-unit-select"
-                  value={prepUnit}
-                  onChange={(event) => setPrepUnit(event.target.value as "minutes" | "hours" | "days")}
-                >
-                  <option value="minutes">Minutes</option>
-                  <option value="hours">Hours</option>
-                  <option value="days">Days</option>
-                </select>
+                <TimeUnitDropdown value={prepUnit} onChange={setPrepUnit} />
               </div>
               {prepUnit === "minutes" && Number(prepAmount) >= 60 && (
                 <button
