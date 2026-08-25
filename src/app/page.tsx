@@ -25,6 +25,7 @@ import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import Silk from "./components/Silk";
 import Dither from "./components/Dither";
+import TargetCursor from "./components/TargetCursor";
 
 const sampleNote = `# The Art of Asking Better Questions
 
@@ -208,6 +209,7 @@ export default function Home() {
     <main
       className={`app${alternateBackground ? " atmosphere-alt" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}
     >
+      <TargetCursor spinDuration={2.2} hideDefaultCursor parallaxOn cursorColor="#ffffff" cursorColorOnTarget="#c084fc" />
       <aside className="sidebar">
         <div className="brand">
           <span className="brand-mark">
@@ -217,7 +219,7 @@ export default function Home() {
           <span className="brand-dot" />
         </div>
         <button
-          className="new-note"
+          className="new-note cursor-target"
           onClick={() => {
             setTopic("");
             setGoal("Understand and remember the key information");
@@ -230,21 +232,21 @@ export default function Home() {
           <span className="shortcut">⌘ N</span>
         </button>
         <div className="side-label">Your library</div>
-        <button className="library-item active">
+        <button className="library-item active cursor-target">
           <FileText size={16} />
           <span>Asking better questions</span>
         </button>
-        <button className="library-item">
+        <button className="library-item cursor-target">
           <FileText size={16} />
           <span>Photosynthesis</span>
         </button>
-        <button className="library-item">
+        <button className="library-item cursor-target">
           <FileText size={16} />
           <span>Design principles</span>
         </button>
         <div className="sidebar-bottom">
           <button
-            className="plain-button"
+            className="plain-button cursor-target"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             aria-label={
               sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
@@ -292,10 +294,10 @@ export default function Home() {
             <strong>{topic || "Untitled note"}</strong>
           </div>
           <div className="top-actions">
-            <button title="Change background atmosphere" onClick={() => setAlternateBackground(!alternateBackground)}>
+            <button className="cursor-target" title="Change background atmosphere" onClick={() => setAlternateBackground(!alternateBackground)}>
               {alternateBackground ? <Sun size={17} /> : <Moon size={17} />}
             </button>
-            <button className="avatar">AM</button>
+            <button className="avatar cursor-target">AM</button>
           </div>
         </header>
         <div className="content">
@@ -335,7 +337,7 @@ export default function Home() {
                   event.currentTarget.value = "";
                 }}
               />
-              <label htmlFor="sources">
+              <label className="cursor-target" htmlFor="sources">
                 <Paperclip size={16} /> Attach sources
               </label>
               <span>PDF, TXT, MD, or HTML · up to 8 files</span>
@@ -347,6 +349,7 @@ export default function Home() {
                     <FileText size={14} />
                     <span>{file.name}</span>
                     <button
+                      className="cursor-target"
                       type="button"
                       title={`Remove ${file.name}`}
                       onClick={() =>
@@ -413,7 +416,7 @@ export default function Home() {
                 </select>
               </div>
               <button
-                className="generate"
+                className="generate cursor-target"
                 onClick={generateNote}
                 disabled={isGenerating || !topic.trim()}
               >
@@ -434,13 +437,14 @@ export default function Home() {
               <h2>{topic || "The Art of Asking Better Questions"}</h2>
             </div>
             <div className="note-tools">
-              <button title="Copy note" onClick={copyNote}>
+              <button className="cursor-target" title="Copy note" onClick={copyNote}>
                 {copied ? <Check size={16} /> : <Clipboard size={16} />}
               </button>
-              <button title="Open HTML in a new tab" onClick={openHtmlNote}>
+              <button className="cursor-target" title="Open HTML in a new tab" onClick={openHtmlNote}>
                 <ExternalLink size={16} />
               </button>
               <button
+                className="cursor-target"
                 title="Download HTML"
                 onClick={downloadNote}
                 disabled={isDownloading}
