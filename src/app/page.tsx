@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Check,
   ChevronDown,
@@ -14,6 +14,7 @@ import {
   PanelLeft,
   Sparkles,
   Sun,
+  Target,
   WandSparkles,
   X,
 } from "lucide-react";
@@ -61,6 +62,14 @@ Try the **question ladder**: start broad, then narrow. Ask what someone notices,
 1. What are the three layers of a strong question?
 2. When might a closed question be more useful than an open one?
 3. Rewrite “Why is our product confusing?” using the question ladder.`;
+
+const goalOptions = [
+  "Understand and remember the key information",
+  "Prepare for an exam",
+  "Learn the topic from beginner level",
+  "Review quickly before a test",
+  "Apply the ideas in practice",
+];
 
 function NoteBody({ note, topic }: { note: string; topic: string }) {
   const title = note.match(/^# (.+)$/m)?.[1] || topic || "Untitled study note";
@@ -369,13 +378,16 @@ export default function Home() {
             )}
             <div className="goal-field">
               <label htmlFor="goal">What do you want to achieve?</label>
-              <input
-                id="goal"
-                list="goal-options"
-                value={goal}
-                onChange={(event) => setGoal(event.target.value)}
-                placeholder="e.g. Prepare for my exam"
-              />
+              <div className="goal-input-shell">
+                <Target size={17} aria-hidden="true" />
+                <input
+                  id="goal"
+                  list="goal-options"
+                  value={goal}
+                  onChange={(event) => setGoal(event.target.value)}
+                  placeholder="e.g. Prepare for my exam"
+                />
+              </div>
               <datalist id="goal-options">
                 <option value="Understand and remember the key information" />
                 <option value="Prepare for an exam" />
