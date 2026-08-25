@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { BookOpen, Check, ChevronDown, Clipboard, FileText, LoaderCircle, Menu, Moon, PanelLeft, Sparkles, Sun, WandSparkles } from "lucide-react";
+import { useRef, useState } from "react";
+import { Check, ChevronDown, Clipboard, FileDown, FileText, LoaderCircle, Menu, Moon, PanelLeft, Sparkles, Sun, WandSparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -48,7 +48,7 @@ function NoteBody({ note }: { note: string }) {
     <nav className="note-tabs" aria-label="Study note sections">
       {sections.map((section, index) => <a href={`#note-section-${index}`} key={section}>{section}</a>)}
     </nav>
-    <div className="notebook">
+    <div className="notebook" id="study-guide">
       <div className="title-block">
         <div className="notebook-eyebrow">AI STUDY NOTE</div>
         <h1>{title}</h1>
@@ -66,14 +66,34 @@ function NoteBody({ note }: { note: string }) {
 }
 
 export default function Home() {
-  const [topic, setTopic] = useState(""); const [level, setLevel] = useState("Intermediate"); const [format, setFormat] = useState("Study guide"); const [focus, setFocus] = useState("Balanced coverage"); const [note, setNote] = useState(sampleNote); const [isGenerating, setIsGenerating] = useState(false); const [copied, setCopied] = useState(false); const [dark, setDark] = useState(false); const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [topic, setTopic] = useState(""); const [level, setLevel] = useState("Intermediate"); const [format, setFormat] = useState("Study guide"); const [focus, setFocus] = useState("Balanced coverage"); const [note, setNote] = useState(sampleNote); const [isGenerating, setIsGenerating] = useState(false); const [copied, setCopied] = useState(false); const [isDownloading, setIsDownloading] = useState(false); const [dark, setDark] = useState(false); const [sidebarCollapsed, setSidebarCollapsed] = useState(false); const noteAreaRef = useRef<HTMLDivElement>(null);
   async function generateNote() { if (!topic.trim()) return; setIsGenerating(true); try { const response = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, level, format, focus }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error); setNote(data.note); } catch (error) { setNote(`## Something needs attention\n\n${error instanceof Error ? error.message : "Unable to generate a note."}`); } finally { setIsGenerating(false); } }
   async function copyNote() { await navigator.clipboard.writeText(note); setCopied(true); window.setTimeout(() => setCopied(false), 1800); }
-  function downloadNote() { const blob = new Blob([note], { type: "text/markdown" }); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = url; link.download = "lumen-note.md"; link.click(); URL.revokeObjectURL(url); }
+  async function downloadNote() {
+    if (!noteAreaRef.current || isDownloading) return;
+    setIsDownloading(true);
+    try {
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas"), import("jspdf")]);
+      const canvas = await html2canvas(noteAreaRef.current, { scale: 2, backgroundColor: "#e4decb", useCORS: true });
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const imageHeight = canvas.height * pageWidth / canvas.width;
+      let offset = 0;
+      while (offset < imageHeight) {
+        if (offset > 0) pdf.addPage();
+        pdf.addImage(canvas.toDataURL("image/jpeg", .92), "JPEG", 0, -offset, pageWidth, imageHeight);
+        offset += pageHeight;
+      }
+      pdf.save(`${(topic.trim() || "lumen-study-note").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase()}.pdf`);
+    } finally {
+      setIsDownloading(false);
+    }
+  }
   return <main className={`${dark ? "app dark" : "app"}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}>
     <aside className="sidebar"><div className="brand"><span className="brand-mark"><Sparkles size={16} /></span><span className="brand-name">Lumen</span><span className="brand-dot" /></div><button className="new-note" onClick={() => { setTopic(""); setNote(sampleNote); }}><WandSparkles size={16} /><span className="button-label">New note</span><span className="shortcut">⌘ N</span></button><div className="side-label">Your library</div><button className="library-item active"><FileText size={16} /><span>Asking better questions</span></button><button className="library-item"><FileText size={16} /><span>Photosynthesis</span></button><button className="library-item"><FileText size={16} /><span>Design principles</span></button><div className="sidebar-bottom"><button className="plain-button" onClick={() => setSidebarCollapsed(!sidebarCollapsed)} aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}><PanelLeft size={16} /><span className="button-label">{sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}</span></button><div className="profile"><span>AM</span><div className="profile-details"><strong>Alex Morgan</strong><small>Personal workspace</small></div><ChevronDown size={14} /></div></div></aside>
     <section className="workspace"><header className="topbar"><button className="mobile-menu"><Menu size={19} /></button><div className="crumb"><span>New note</span><span>/</span><strong>{topic || "Untitled note"}</strong></div><div className="top-actions"><button title="Toggle theme" onClick={() => setDark(!dark)}>{dark ? <Sun size={17} /> : <Moon size={17} />}</button><button className="avatar">AM</button></div></header><div className="content"><div className="intro"><div><div className="eyebrow"><span className="status-dot" /> Gemini-powered workspace</div><h1>What would you like to understand?</h1><p>Give me a topic and I&apos;ll turn it into a clear, complete note you can actually use.</p></div><div className="sparkle-large"><Sparkles size={27} /></div></div>
       <div className="builder-panel"><label htmlFor="topic">Topic or question</label><textarea id="topic" value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="e.g. How do neural networks learn?" rows={2} /><div className="controls"><div className="select-wrap"><span>Level</span><select value={level} onChange={(event) => setLevel(event.target.value)}><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div><div className="select-wrap"><span>Format</span><select value={format} onChange={(event) => setFormat(event.target.value)}><option>Study guide</option><option>Deep dive</option><option>Cheat sheet</option></select></div><div className="select-wrap"><span>Focus</span><select value={focus} onChange={(event) => setFocus(event.target.value)}><option>Balanced coverage</option><option>Practical examples</option><option>Exam preparation</option></select></div><button className="generate" onClick={generateNote} disabled={isGenerating || !topic.trim()}>{isGenerating ? <LoaderCircle className="spin" size={17} /> : <Sparkles size={17} />}{isGenerating ? "Building..." : "Build my note"}</button></div></div>
-      <div className="note-header"><div><div className="note-kicker"><span className="green-dot" /> Ready to read</div><h2>{topic || "The Art of Asking Better Questions"}</h2></div><div className="note-tools"><button title="Copy note" onClick={copyNote}>{copied ? <Check size={16} /> : <Clipboard size={16} />}</button><button title="Download note" onClick={downloadNote}><BookOpen size={16} /></button></div></div><NoteBody note={note} /><footer className="footer-note">Drafted with Gemini <span>•</span> Edit freely, make it yours</footer></div></section>
+      <div className="note-header"><div><div className="note-kicker"><span className="green-dot" /> Ready to read</div><h2>{topic || "The Art of Asking Better Questions"}</h2></div><div className="note-tools"><button title="Copy note" onClick={copyNote}>{copied ? <Check size={16} /> : <Clipboard size={16} />}</button><button title="Download PDF" onClick={downloadNote} disabled={isDownloading}>{isDownloading ? <LoaderCircle className="spin" size={16} /> : <FileDown size={16} />}</button></div></div><div ref={noteAreaRef}><NoteBody note={note} /></div><footer className="footer-note">Drafted with Gemini <span>•</span> Edit freely, make it yours</footer></div></section>
   </main>;
 }
