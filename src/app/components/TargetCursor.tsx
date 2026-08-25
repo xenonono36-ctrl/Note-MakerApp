@@ -18,7 +18,10 @@ export default function TargetCursor({ targetSelector = ".cursor-target", hideDe
     const corners = cornersRef.current;
     const originalCursor = document.body.style.cursor;
     if (hideDefaultCursor) document.body.style.cursor = "none";
-    const move = (event: MouseEvent) => gsap.set(wrapper, { x: event.clientX, y: event.clientY });
+    const move = (event: MouseEvent) => {
+      wrapper.classList.toggle("is-pencil", Boolean((event.target as Element).closest(".notebook")));
+      gsap.set(wrapper, { x: event.clientX, y: event.clientY });
+    };
     const down = () => { gsap.to(wrapper, { scale: 0.88, duration: 0.15 }); gsap.to(dotRef.current, { scale: 0.7, duration: 0.15 }); };
     const up = () => { gsap.to(wrapper, { scale: 1, duration: 0.2 }); gsap.to(dotRef.current, { scale: 1, duration: 0.2 }); };
     let active: Element | null = null;
@@ -26,6 +29,8 @@ export default function TargetCursor({ targetSelector = ".cursor-target", hideDe
     let parallax: ((event: Event) => void) | null = null;
     const reset = () => { if (leave) leave(); };
     const enter = (event: MouseEvent) => {
+      const notebook = (event.target as Element).closest(".notebook");
+      wrapper.classList.toggle("is-pencil", Boolean(notebook));
       const target = (event.target as Element).closest(targetSelector);
       if (!target || target === active) return;
       reset(); active = target;
@@ -39,7 +44,7 @@ export default function TargetCursor({ targetSelector = ".cursor-target", hideDe
     };
     wrapper.style.color = cursorColor;
     window.addEventListener("mousemove", move); window.addEventListener("mouseover", enter); window.addEventListener("mousedown", down); window.addEventListener("mouseup", up);
-    return () => { if (leave) leave(); window.removeEventListener("mousemove", move); window.removeEventListener("mouseover", enter); window.removeEventListener("mousedown", down); window.removeEventListener("mouseup", up); document.body.style.cursor = originalCursor; };
+    return () => { if (leave) leave(); wrapper.classList.remove("is-pencil"); window.removeEventListener("mousemove", move); window.removeEventListener("mouseover", enter); window.removeEventListener("mousedown", down); window.removeEventListener("mouseup", up); document.body.style.cursor = originalCursor; };
   }, [cursorColor, cursorColorOnTarget, hideDefaultCursor, hoverDuration, isMobile, parallaxOn, targetSelector]);
 
   if (isMobile) return null;
