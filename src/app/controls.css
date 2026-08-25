@@ -794,6 +794,14 @@
     background: rgba(255,255,255,.34);
 }
 
+.sidebar-collapsed .sidebar:not(:hover) .library-empty {
+    margin-top: 24px;
+}
+
+.sidebar-collapsed .sidebar:hover .library-empty {
+    margin-top: 2px;
+}
+
 .sidebar .plain-button:hover,
 .sidebar .library-item:hover {
     background: rgba(168,85,247,.1);
@@ -808,6 +816,14 @@
     width: 140px;
     padding-left: 10px;
     padding-right: 10px;
+}
+
+.sidebar-collapsed .sidebar:not(:hover) .side-label {
+    padding-top: 52px;
+}
+
+.sidebar-collapsed .sidebar:hover .side-label {
+    padding-top: 34px;
 }
 
 .sidebar-collapsed .sidebar:hover {
