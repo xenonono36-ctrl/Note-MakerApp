@@ -1,6 +1,22 @@
 "use client";
 import { useRef, useState } from "react";
-import { Check, ChevronDown, Clipboard, ExternalLink, FileCode, FileText, LoaderCircle, Menu, Moon, PanelLeft, Sparkles, Sun, WandSparkles } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  Clipboard,
+  ExternalLink,
+  FileCode,
+  FileText,
+  LoaderCircle,
+  Menu,
+  Moon,
+  Paperclip,
+  PanelLeft,
+  Sparkles,
+  Sun,
+  WandSparkles,
+  X,
+} from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -41,47 +57,121 @@ Try the **question ladder**: start broad, then narrow. Ask what someone notices,
 
 function NoteBody({ note }: { note: string }) {
   const title = note.match(/^# (.+)$/m)?.[1] || "Untitled study note";
-  const sections = Array.from(note.matchAll(/^## (.+)$/gm), (match) => match[1]);
+  const sections = Array.from(
+    note.matchAll(/^## (.+)$/gm),
+    (match) => match[1],
+  );
   const content = note.replace(/^# .+\n?/, "");
 
-  return <div className="study-guide-area">
-    <nav className="note-tabs" aria-label="Study note sections">
-      {sections.map((section, index) => <a href={`#note-section-${index}`} key={section}>{section}</a>)}
-    </nav>
-    <div className="notebook" id="study-guide">
-      <div className="title-block">
-        <div className="notebook-eyebrow">AI STUDY NOTE</div>
-        <h1>{title}</h1>
-        <div className="notebook-sub">Structured by Gemini · {sections.length || 1} sections</div>
+  return (
+    <div className="study-guide-area">
+      <nav className="note-tabs" aria-label="Study note sections">
+        {sections.map((section, index) => (
+          <a href={`#note-section-${index}`} key={section}>
+            {section}
+          </a>
+        ))}
+      </nav>
+      <div className="notebook" id="study-guide">
+        <div className="title-block">
+          <div className="notebook-eyebrow">AI STUDY NOTE</div>
+          <h1>{title}</h1>
+          <div className="notebook-sub">
+            Structured by Gemini · {sections.length || 1} sections
+          </div>
+        </div>
+        <div className="study-sticky">
+          <strong>Study focus</strong>
+          <br />
+          Read the overview first, then use the review questions to test what
+          you remember.
+        </div>
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            h2: ({ children }) => {
+              const index = sections.findIndex(
+                (section) => section === String(children),
+              );
+              return (
+                <h2 id={`note-section-${index < 0 ? 0 : index}`}>{children}</h2>
+              );
+            },
+          }}
+        >
+          {content}
+        </ReactMarkdown>
       </div>
-      <div className="study-sticky"><strong>Study focus</strong><br />Read the overview first, then use the review questions to test what you remember.</div>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
-        h2: ({ children }) => {
-          const index = sections.findIndex((section) => section === String(children));
-          return <h2 id={`note-section-${index < 0 ? 0 : index}`}>{children}</h2>;
-        },
-      }}>{content}</ReactMarkdown>
     </div>
-  </div>;
+  );
 }
 
 export default function Home() {
-  const [topic, setTopic] = useState(""); const [level, setLevel] = useState("Intermediate"); const [format, setFormat] = useState("Study guide"); const [focus, setFocus] = useState("Balanced coverage"); const [note, setNote] = useState(sampleNote); const [isGenerating, setIsGenerating] = useState(false); const [copied, setCopied] = useState(false); const [isDownloading, setIsDownloading] = useState(false); const [dark, setDark] = useState(false); const [sidebarCollapsed, setSidebarCollapsed] = useState(false); const noteAreaRef = useRef<HTMLDivElement>(null);
-  async function generateNote() { if (!topic.trim()) return; setIsGenerating(true); try { const response = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic, level, format, focus }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error); setNote(data.note); } catch (error) { setNote(`## Something needs attention\n\n${error instanceof Error ? error.message : "Unable to generate a note."}`); } finally { setIsGenerating(false); } }
-  async function copyNote() { await navigator.clipboard.writeText(note); setCopied(true); window.setTimeout(() => setCopied(false), 1800); }
+  const [topic, setTopic] = useState("");
+  const [level, setLevel] = useState("Intermediate");
+  const [format, setFormat] = useState("Study guide");
+  const [focus, setFocus] = useState("Balanced coverage");
+  const [goal, setGoal] = useState(
+    "Understand and remember the key information",
+  );
+  const [note, setNote] = useState(sampleNote);
+  const [sources, setSources] = useState<File[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [dark, setDark] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const noteAreaRef = useRef<HTMLDivElement>(null);
+  async function generateNote() {
+    if (!topic.trim()) return;
+    setIsGenerating(true);
+    try {
+      const formData = new FormData();
+      formData.append("topic", topic);
+      formData.append("level", level);
+      formData.append("format", format);
+      formData.append("focus", focus);
+      formData.append("goal", goal);
+      sources.forEach((file) => formData.append("sources", file));
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      setNote(data.note);
+    } catch (error) {
+      setNote(
+        `## Something needs attention\n\n${error instanceof Error ? error.message : "Unable to generate a note."}`,
+      );
+    } finally {
+      setIsGenerating(false);
+    }
+  }
+  async function copyNote() {
+    await navigator.clipboard.writeText(note);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1800);
+  }
   function getHtmlDocument() {
-    const styles = Array.from(document.styleSheets).map((sheet) => {
-      try {
-        return Array.from(sheet.cssRules).map((rule) => rule.cssText).join("\n");
-      } catch {
-        return "";
-      }
-    }).join("\n");
+    const styles = Array.from(document.styleSheets)
+      .map((sheet) => {
+        try {
+          return Array.from(sheet.cssRules)
+            .map((rule) => rule.cssText)
+            .join("\n");
+        } catch {
+          return "";
+        }
+      })
+      .join("\n");
     const title = topic.trim() || "Lumen Study Note";
     return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title><style>${styles}body{margin:0;background:#e4decb}.study-guide-export{min-height:100vh}</style></head><body><main class="study-guide-export">${noteAreaRef.current?.innerHTML || ""}</main></body></html>`;
   }
   function createHtmlUrl() {
-    return URL.createObjectURL(new Blob([getHtmlDocument()], { type: "text/html" }));
+    return URL.createObjectURL(
+      new Blob([getHtmlDocument()], { type: "text/html" }),
+    );
   }
   async function downloadNote() {
     if (!noteAreaRef.current || isDownloading) return;
@@ -89,7 +179,10 @@ export default function Home() {
     try {
       const link = document.createElement("a");
       link.href = createHtmlUrl();
-      link.download = `${(topic.trim() || "lumen-study-note").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase()}.html`;
+      link.download = `${(topic.trim() || "lumen-study-note")
+        .replace(/[^a-z0-9]+/gi, "-")
+        .replace(/^-|-$/g, "")
+        .toLowerCase()}.html`;
       link.click();
       URL.revokeObjectURL(link.href);
     } finally {
@@ -104,10 +197,247 @@ export default function Home() {
     newWindow.document.write(getHtmlDocument());
     newWindow.document.close();
   }
-  return <main className={`${dark ? "app dark" : "app"}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}>
-    <aside className="sidebar"><div className="brand"><span className="brand-mark"><Sparkles size={16} /></span><span className="brand-name">Lumen</span><span className="brand-dot" /></div><button className="new-note" onClick={() => { setTopic(""); setNote(sampleNote); }}><WandSparkles size={16} /><span className="button-label">New note</span><span className="shortcut">⌘ N</span></button><div className="side-label">Your library</div><button className="library-item active"><FileText size={16} /><span>Asking better questions</span></button><button className="library-item"><FileText size={16} /><span>Photosynthesis</span></button><button className="library-item"><FileText size={16} /><span>Design principles</span></button><div className="sidebar-bottom"><button className="plain-button" onClick={() => setSidebarCollapsed(!sidebarCollapsed)} aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}><PanelLeft size={16} /><span className="button-label">{sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}</span></button><div className="profile"><span>AM</span><div className="profile-details"><strong>Alex Morgan</strong><small>Personal workspace</small></div><ChevronDown size={14} /></div></div></aside>
-    <section className="workspace"><header className="topbar"><button className="mobile-menu"><Menu size={19} /></button><div className="crumb"><span>New note</span><span>/</span><strong>{topic || "Untitled note"}</strong></div><div className="top-actions"><button title="Toggle theme" onClick={() => setDark(!dark)}>{dark ? <Sun size={17} /> : <Moon size={17} />}</button><button className="avatar">AM</button></div></header><div className="content"><div className="intro"><div><div className="eyebrow"><span className="status-dot" /> Gemini-powered workspace</div><h1>What would you like to understand?</h1><p>Give me a topic and I&apos;ll turn it into a clear, complete note you can actually use.</p></div><div className="sparkle-large"><Sparkles size={27} /></div></div>
-      <div className="builder-panel"><label htmlFor="topic">Topic or question</label><textarea id="topic" value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="e.g. How do neural networks learn?" rows={2} /><div className="controls"><div className="select-wrap"><span>Level</span><select value={level} onChange={(event) => setLevel(event.target.value)}><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div><div className="select-wrap"><span>Format</span><select value={format} onChange={(event) => setFormat(event.target.value)}><option>Study guide</option><option>Deep dive</option><option>Cheat sheet</option></select></div><div className="select-wrap"><span>Focus</span><select value={focus} onChange={(event) => setFocus(event.target.value)}><option>Balanced coverage</option><option>Practical examples</option><option>Exam preparation</option></select></div><button className="generate" onClick={generateNote} disabled={isGenerating || !topic.trim()}>{isGenerating ? <LoaderCircle className="spin" size={17} /> : <Sparkles size={17} />}{isGenerating ? "Building..." : "Build my note"}</button></div></div>
-      <div className="note-header"><div><div className="note-kicker"><span className="green-dot" /> Ready to read</div><h2>{topic || "The Art of Asking Better Questions"}</h2></div><div className="note-tools"><button title="Copy note" onClick={copyNote}>{copied ? <Check size={16} /> : <Clipboard size={16} />}</button><button title="Open HTML in a new tab" onClick={openHtmlNote}><ExternalLink size={16} /></button><button title="Download HTML" onClick={downloadNote} disabled={isDownloading}>{isDownloading ? <LoaderCircle className="spin" size={16} /> : <FileCode size={16} />}</button></div></div><div ref={noteAreaRef}><NoteBody note={note} /></div><footer className="footer-note">Drafted with Gemini <span>•</span> Edit freely, make it yours</footer></div></section>
-  </main>;
+  return (
+    <main
+      className={`${dark ? "app dark" : "app"}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}
+    >
+      <aside className="sidebar">
+        <div className="brand">
+          <span className="brand-mark">
+            <Sparkles size={16} />
+          </span>
+          <span className="brand-name">Lumen</span>
+          <span className="brand-dot" />
+        </div>
+        <button
+          className="new-note"
+          onClick={() => {
+            setTopic("");
+            setGoal("Understand and remember the key information");
+            setSources([]);
+            setNote(sampleNote);
+          }}
+        >
+          <WandSparkles size={16} />
+          <span className="button-label">New note</span>
+          <span className="shortcut">⌘ N</span>
+        </button>
+        <div className="side-label">Your library</div>
+        <button className="library-item active">
+          <FileText size={16} />
+          <span>Asking better questions</span>
+        </button>
+        <button className="library-item">
+          <FileText size={16} />
+          <span>Photosynthesis</span>
+        </button>
+        <button className="library-item">
+          <FileText size={16} />
+          <span>Design principles</span>
+        </button>
+        <div className="sidebar-bottom">
+          <button
+            className="plain-button"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            aria-label={
+              sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
+            }
+          >
+            <PanelLeft size={16} />
+            <span className="button-label">
+              {sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            </span>
+          </button>
+          <div className="profile">
+            <span>AM</span>
+            <div className="profile-details">
+              <strong>Alex Morgan</strong>
+              <small>Personal workspace</small>
+            </div>
+            <ChevronDown size={14} />
+          </div>
+        </div>
+      </aside>
+      <section className="workspace">
+        <header className="topbar">
+          <button className="mobile-menu">
+            <Menu size={19} />
+          </button>
+          <div className="crumb">
+            <span>New note</span>
+            <span>/</span>
+            <strong>{topic || "Untitled note"}</strong>
+          </div>
+          <div className="top-actions">
+            <button title="Toggle theme" onClick={() => setDark(!dark)}>
+              {dark ? <Sun size={17} /> : <Moon size={17} />}
+            </button>
+            <button className="avatar">AM</button>
+          </div>
+        </header>
+        <div className="content">
+          <div className="intro">
+            <div>
+              <div className="eyebrow">
+                <span className="status-dot" /> Gemini-powered workspace
+              </div>
+              <h1>What would you like to understand?</h1>
+              <p>
+                Give me a topic and I&apos;ll turn it into a clear, complete
+                note you can actually use.
+              </p>
+            </div>
+            <div className="sparkle-large">
+              <Sparkles size={27} />
+            </div>
+          </div>
+          <div className="builder-panel">
+            <label htmlFor="topic">Topic or question</label>
+            <textarea
+              id="topic"
+              value={topic}
+              onChange={(event) => setTopic(event.target.value)}
+              placeholder="e.g. How do neural networks learn?"
+              rows={2}
+            />
+            <div className="source-picker">
+              <input
+                id="sources"
+                type="file"
+                accept=".pdf,.txt,.md,.html,.htm,application/pdf,text/plain,text/markdown,text/html"
+                multiple
+                onChange={(event) => {
+                  const files = Array.from(event.target.files || []);
+                  setSources((current) => [...current, ...files].slice(0, 8));
+                  event.currentTarget.value = "";
+                }}
+              />
+              <label htmlFor="sources">
+                <Paperclip size={16} /> Attach sources
+              </label>
+              <span>PDF, TXT, MD, or HTML · up to 8 files</span>
+            </div>
+            {sources.length > 0 && (
+              <div className="source-list">
+                {sources.map((file, index) => (
+                  <div className="source-file" key={`${file.name}-${index}`}>
+                    <FileText size={14} />
+                    <span>{file.name}</span>
+                    <button
+                      type="button"
+                      title={`Remove ${file.name}`}
+                      onClick={() =>
+                        setSources((current) =>
+                          current.filter((_, fileIndex) => fileIndex !== index),
+                        )
+                      }
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="goal-field">
+              <label htmlFor="goal">What do you want to achieve?</label>
+              <input
+                id="goal"
+                list="goal-options"
+                value={goal}
+                onChange={(event) => setGoal(event.target.value)}
+                placeholder="e.g. Prepare for my exam"
+              />
+              <datalist id="goal-options">
+                <option value="Understand and remember the key information" />
+                <option value="Prepare for an exam" />
+                <option value="Learn the topic from beginner level" />
+                <option value="Review quickly before a test" />
+                <option value="Apply the ideas in practice" />
+              </datalist>
+            </div>
+            <div className="controls">
+              <div className="select-wrap">
+                <span>Level</span>
+                <select
+                  value={level}
+                  onChange={(event) => setLevel(event.target.value)}
+                >
+                  <option>Beginner</option>
+                  <option>Intermediate</option>
+                  <option>Advanced</option>
+                </select>
+              </div>
+              <div className="select-wrap">
+                <span>Format</span>
+                <select
+                  value={format}
+                  onChange={(event) => setFormat(event.target.value)}
+                >
+                  <option>Study guide</option>
+                  <option>Deep dive</option>
+                  <option>Cheat sheet</option>
+                </select>
+              </div>
+              <div className="select-wrap">
+                <span>Focus</span>
+                <select
+                  value={focus}
+                  onChange={(event) => setFocus(event.target.value)}
+                >
+                  <option>Balanced coverage</option>
+                  <option>Practical examples</option>
+                  <option>Exam preparation</option>
+                </select>
+              </div>
+              <button
+                className="generate"
+                onClick={generateNote}
+                disabled={isGenerating || !topic.trim()}
+              >
+                {isGenerating ? (
+                  <LoaderCircle className="spin" size={17} />
+                ) : (
+                  <Sparkles size={17} />
+                )}
+                {isGenerating ? "Building..." : "Build my note"}
+              </button>
+            </div>
+          </div>
+          <div className="note-header">
+            <div>
+              <div className="note-kicker">
+                <span className="green-dot" /> Ready to read
+              </div>
+              <h2>{topic || "The Art of Asking Better Questions"}</h2>
+            </div>
+            <div className="note-tools">
+              <button title="Copy note" onClick={copyNote}>
+                {copied ? <Check size={16} /> : <Clipboard size={16} />}
+              </button>
+              <button title="Open HTML in a new tab" onClick={openHtmlNote}>
+                <ExternalLink size={16} />
+              </button>
+              <button
+                title="Download HTML"
+                onClick={downloadNote}
+                disabled={isDownloading}
+              >
+                {isDownloading ? (
+                  <LoaderCircle className="spin" size={16} />
+                ) : (
+                  <FileCode size={16} />
+                )}
+              </button>
+            </div>
+          </div>
+          <div ref={noteAreaRef}>
+            <NoteBody note={note} />
+          </div>
+          <footer className="footer-note">
+            Drafted with Gemini <span>•</span> Edit freely, make it yours
+          </footer>
+        </div>
+      </section>
+    </main>
+  );
 }

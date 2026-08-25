@@ -9,3 +9,5 @@
 5. Open http://localhost:3000 and enter a topic.
 
 The app uses Gemini 3.6 Flash. Google AI Studio provides a free tier with rate and usage limits; it is not unlimited anonymous access. The key stays in `.env.local`, which is ignored by git. Never put it in a client component or commit it.
+
+You can attach up to 8 source files per note. PDF files are sent to Gemini as documents; TXT, Markdown, and HTML files are included as text. Each file is limited to 20 MB.
