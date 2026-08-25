@@ -1,0 +1,205 @@
+.card-nav-container {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    padding: 10px 28px 0;
+    z-index: 9;
+}
+
+.card-nav {
+    position: relative;
+    width: min(100%, 920px);
+    height: 62px;
+    margin: 0 auto;
+    overflow: hidden;
+    border: 1px solid rgba(216, 180, 254, .2);
+    border-radius: 14px;
+    background: rgba(14, 9, 24, .66);
+    box-shadow: 0 14px 40px rgba(5, 3, 12, .25), inset 0 1px 0 rgba(255,255,255,.12);
+    backdrop-filter: blur(22px) saturate(135%);
+    -webkit-backdrop-filter: blur(22px) saturate(135%);
+    will-change: height;
+}
+
+.card-nav::before {
+    position: absolute;
+    top: 0;
+    right: 18px;
+    left: 18px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #c084fc, #67e8f9, transparent);
+    content: "";
+}
+
+.card-nav-top {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 62px;
+    padding: 7px 9px 7px 12px;
+    z-index: 2;
+}
+
+.card-nav-menu,
+.card-nav-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(216, 180, 254, .2);
+    background: rgba(255,255,255,.06);
+    color: #f8f5ff;
+    cursor: pointer;
+    transition: transform .2s ease, background .2s ease, border-color .2s ease;
+}
+
+.card-nav-menu {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+}
+
+.card-nav-cta {
+    gap: 7px;
+    height: 42px;
+    padding: 0 13px;
+    border-color: transparent;
+    border-radius: 10px;
+    background: #c9ef65;
+    color: #26301a;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.card-nav-menu:hover,
+.card-nav-cta:hover {
+    border-color: rgba(216, 180, 254, .5);
+    background: rgba(192,132,252,.18);
+    transform: translateY(-2px);
+}
+
+.card-nav-cta:hover {
+    border-color: transparent;
+    background: #ddf78d;
+}
+
+.card-nav-menu:focus-visible,
+.card-nav-cta:focus-visible,
+.nav-card-link:focus-visible {
+    outline: 2px solid #67e8f9;
+    outline-offset: 3px;
+}
+
+.card-nav-brand {
+    position: absolute;
+    left: 50%;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #faf7ff;
+    transform: translateX(-50%);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: .02em;
+}
+
+.card-nav-mark {
+    display: grid;
+    place-items: center;
+    width: 27px;
+    height: 27px;
+    border-radius: 8px 8px 8px 2px;
+    background: #f8f5ff;
+    color: #6d28d9;
+}
+
+.card-nav-content {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    height: 208px;
+    padding: 7px 9px 9px;
+}
+
+.nav-card {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 9px;
+    padding: 15px;
+    border-radius: 10px;
+    color: #fff;
+    user-select: none;
+}
+
+.nav-card-lime { background: linear-gradient(145deg, #26351b, #18251d); }
+.nav-card-violet { background: linear-gradient(145deg, #382153, #241638); }
+.nav-card-cyan { background: linear-gradient(145deg, #123c43, #122a34); }
+
+.nav-card-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: rgba(255,255,255,.7);
+    font: 600 10px 'DM Mono', monospace;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.nav-card strong {
+    display: -webkit-box;
+    overflow: hidden;
+    color: #fff;
+    font-size: 15px;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.nav-card-meta {
+    overflow: hidden;
+    color: rgba(255,255,255,.62);
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nav-card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    margin-top: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    font-size: 11px;
+    text-decoration: none;
+    transition: gap .2s ease, color .2s ease;
+}
+
+.nav-card-link:hover {
+    gap: 9px;
+    color: #ddf78d;
+}
+
+.nav-card-action {
+    text-align: left;
+}
+
+@media(max-width:800px) {
+    .card-nav-container { padding: 8px 14px 0; }
+    .card-nav { width: 100%; }
+    .card-nav-content { grid-template-columns: 1fr; height: auto; overflow-y: auto; }
+    .card-nav { max-height: min(430px, calc(100vh - 18px)); }
+    .nav-card { min-height: 105px; }
+}
+
+@media(max-width:480px) {
+    .card-nav-cta span { display: none; }
+    .card-nav-cta { width: 42px; padding: 0; }
+    .card-nav-brand { font-size: 13px; }
+}

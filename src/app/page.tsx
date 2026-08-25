@@ -9,12 +9,9 @@ import {
   FileText,
   LoaderCircle,
   Library,
-  Menu,
-  Moon,
   Paperclip,
   PanelLeft,
   Sparkles,
-  Sun,
   Target,
   ArrowRightLeft,
   WandSparkles,
@@ -30,6 +27,7 @@ import "katex/dist/katex.min.css";
 import Silk from "./components/Silk";
 import Dither from "./components/Dither";
 import TargetCursor from "./components/TargetCursor";
+import CardNav from "./components/CardNav";
 import { buildStudyRoutine } from "../lib/studyRoutine";
 
 const sampleNote = `# The Art of Asking Better Questions
@@ -412,22 +410,24 @@ export default function Home() {
             <Silk speed={5} scale={1.1} color="#7C3AED" noiseIntensity={1.2} rotation={0.15} />
           )}
         </div>
-        <header className="topbar">
-          <button className="mobile-menu">
-            <Menu size={19} />
-          </button>
-          <div className="crumb">
-            <span>New note</span>
-            <span>/</span>
-            <strong>{topic || "Untitled note"}</strong>
-          </div>
-          <div className="top-actions">
-            <button className="cursor-target" title="Change background atmosphere" onClick={() => setAlternateBackground(!alternateBackground)}>
-              {alternateBackground ? <Sun size={17} /> : <Moon size={17} />}
-            </button>
-            <button className="avatar cursor-target">AM</button>
-          </div>
-        </header>
+        <CardNav
+          topic={topic}
+          level={level}
+          format={format}
+          noteCount={library.length}
+          alternateBackground={alternateBackground}
+          onNewNote={() => {
+            setTopic("");
+            setGoal("Understand and remember the key information");
+            setPrepAmount("45");
+            setPrepUnit("minutes");
+            setRoutine("");
+            setSelectedNoteId(null);
+            setSources([]);
+            setNote(sampleNote);
+          }}
+          onToggleBackground={() => setAlternateBackground((current) => !current)}
+        />
         <div className="content">
           <div className="intro">
             <div>
