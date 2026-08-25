@@ -24,6 +24,7 @@ import remarkGfm from "remark-gfm";
 
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
 import "katex/dist/katex.min.css";
 import Silk from "./components/Silk";
 import Dither from "./components/Dither";
@@ -132,7 +133,7 @@ function NoteBody({ note, topic }: { note: string; topic: string }) {
         </div>
         <ReactMarkdown
           remarkPlugins={[remarkGfm, remarkMath]}
-          rehypePlugins={[rehypeKatex]}
+          rehypePlugins={[rehypeRaw, rehypeKatex]}
           components={{
             h2: ({ children }) => {
               const index = sections.findIndex(

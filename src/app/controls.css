@@ -389,3 +389,29 @@
     color: #22d3ee;
     transform: scale(1.1) rotate(-8deg)
 }
+
+.notebook details {
+    margin: 18px 0 24px;
+    padding: 0 16px 14px;
+    border: 1px solid rgba(29, 78, 155, .25);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .45);
+}
+
+.notebook details summary {
+    padding: 12px 0;
+    color: #1d4e9b;
+    cursor: pointer;
+    font-family: Caveat, cursive;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.notebook details summary::marker {
+    color: #1f7a4d;
+}
+
+.notebook details[open] summary {
+    margin-bottom: 6px;
+    border-bottom: 1px dashed rgba(29, 78, 155, .3);
+}
