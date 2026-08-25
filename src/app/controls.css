@@ -415,3 +415,10 @@
     margin-bottom: 6px;
     border-bottom: 1px dashed rgba(29, 78, 155, .3);
 }
+
+.notebook pre {
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: pre;
+    tab-size: 4;
+}

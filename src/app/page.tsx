@@ -100,6 +100,19 @@ function createSavedStudyNote(topic: string, content: string): SavedStudyNote {
   };
 }
 
+function decodeMathEntities(markdown: string) {
+  const decode = (expression: string) =>
+    expression
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">");
+
+  return markdown.replace(/\$\$([\s\S]*?)\$\$|\$([^$\n]+)\$/g, (match, block, inline) => {
+    if (block !== undefined) return `$$${decode(block)}$$`;
+    return `$${decode(inline)}$`;
+  });
+}
+
 function NoteBody({ note, topic }: { note: string; topic: string }) {
   const title = note.match(/^# (.+)$/m)?.[1] || topic || "Untitled study note";
   const sections = Array.from(
@@ -107,6 +120,7 @@ function NoteBody({ note, topic }: { note: string; topic: string }) {
     (match) => match[1],
   );
   const content = note.replace(/^# .+\n?/, "");
+  const renderableContent = decodeMathEntities(content);
 
   return (
     <div className="study-guide-area">
@@ -133,7 +147,7 @@ function NoteBody({ note, topic }: { note: string; topic: string }) {
         </div>
         <ReactMarkdown
           remarkPlugins={[remarkGfm, remarkMath]}
-          rehypePlugins={[rehypeRaw, rehypeKatex]}
+          rehypePlugins={[rehypeKatex, rehypeRaw]}
           components={{
             h2: ({ children }) => {
               const index = sections.findIndex(
@@ -145,7 +159,7 @@ function NoteBody({ note, topic }: { note: string; topic: string }) {
             },
           }}
         >
-          {content}
+          {renderableContent}
         </ReactMarkdown>
       </div>
     </div>
