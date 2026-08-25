@@ -688,3 +688,24 @@
         gap: 3px;
     }
 }
+
+.brand-logo {
+    display: block;
+    width: 150px;
+    height: 82px;
+    object-fit: contain;
+    object-position: left center;
+}
+
+.sidebar-collapsed .brand-logo {
+    width: 42px;
+    height: 42px;
+    object-position: left center;
+}
+
+@media (hover:hover) {
+    .sidebar-collapsed .sidebar:hover .brand-logo {
+        width: 150px;
+        height: 82px;
+    }
+}

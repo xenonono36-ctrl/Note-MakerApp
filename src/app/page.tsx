@@ -29,6 +29,8 @@ import Dither from "./components/Dither";
 import TargetCursor from "./components/TargetCursor";
 import CardNav from "./components/CardNav";
 import { buildStudyRoutine } from "../lib/studyRoutine";
+import Image from "next/image";
+import chronoLogo from "./logo.png";
 
 const sampleNote = `# The Art of Asking Better Questions
 
@@ -315,11 +317,7 @@ export default function Home() {
       <TargetCursor spinDuration={2.2} hideDefaultCursor parallaxOn cursorColor="#ffffff" cursorColorOnTarget="#c084fc" />
       <aside className="sidebar">
         <div className="brand">
-          <span className="brand-mark">
-            <Sparkles size={16} />
-          </span>
-          <span className="brand-name">Chrono</span>
-          <span className="brand-dot" />
+          <Image className="brand-logo" src={chronoLogo} alt="Chrono" priority />
         </div>
         <button
           className="new-note cursor-target"

@@ -3,6 +3,8 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { ArrowUpRight, BookOpen, FilePlus2, Menu, Moon, Sparkles, Sun, X } from "lucide-react";
 import { gsap } from "gsap";
+import Image from "next/image";
+import chronoLogo from "../logo.png";
 import "./CardNav.css";
 
 type CardNavProps = {
@@ -71,8 +73,7 @@ export default function CardNav({
             {isOpen ? <X size={18} /> : <Menu size={19} />}
           </button>
           <div className="card-nav-brand">
-            <span className="card-nav-mark"><Sparkles size={14} /></span>
-            <span>Chrono</span>
+            <Image src={chronoLogo} alt="Chrono" priority />
           </div>
           <button type="button" className="card-nav-cta" onClick={onNewNote}>
             <FilePlus2 size={15} />
