@@ -25,7 +25,7 @@ import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import Ferrofluid from "./components/Ferrofluid";
 
-const ferrofluidColors = ["#c9ef65", "#82d8c8", "#ffffff"];
+const ferrofluidColors = ["#a855f7", "#7c3aed", "#22d3ee"];
 const sampleNote = `# The Art of Asking Better Questions
 
 ## A quick orientation
