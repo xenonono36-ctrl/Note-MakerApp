@@ -641,7 +641,7 @@
 }
 
 .sidebar-collapsed .sidebar {
-    width: 68px;
+    width: 140px;
     padding-left: 10px;
     padding-right: 10px;
 }
@@ -822,9 +822,15 @@
 }
 
 .sidebar-collapsed .brand-logo {
-    width: 42px;
-    height: 42px;
-    object-position: left center;
+    width: 58px;
+    height: 58px;
+    object-position: center;
+}
+
+.sidebar-collapsed .brand {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 @media (hover:hover) {
