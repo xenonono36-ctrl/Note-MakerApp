@@ -1,6 +1,6 @@
 # Note-MakerApp
 
-## Run the working version
+## Run the working version 
 
 1. Create a Gemini API key in Google AI Studio at https://aistudio.google.com/app/apikey.
 2. Copy `.env.example` to `.env.local`.
