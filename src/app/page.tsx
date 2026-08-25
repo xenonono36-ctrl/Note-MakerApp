@@ -23,9 +23,9 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
-import Ferrofluid from "./components/Ferrofluid";
+import Silk from "./components/Silk";
+import Dither from "./components/Dither";
 
-const ferrofluidColors = ["#a855f7", "#7c3aed", "#22d3ee"];
 const sampleNote = `# The Art of Asking Better Questions
 
 ## A quick orientation
@@ -126,7 +126,7 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [dark, setDark] = useState(false);
+  const [alternateBackground, setAlternateBackground] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const noteAreaRef = useRef<HTMLDivElement>(null);
   async function generateNote() {
@@ -206,7 +206,7 @@ export default function Home() {
   }
   return (
     <main
-      className={`${dark ? "app dark" : "app"}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}
+      className={`app${alternateBackground ? " atmosphere-alt" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}
     >
       <aside className="sidebar">
         <div className="brand">
@@ -267,18 +267,20 @@ export default function Home() {
       </aside>
       <section className="workspace">
         <div className="workspace-atmosphere">
-          <Ferrofluid
-            colors={ferrofluidColors}
-            speed={0.35}
-            scale={1.6}
-            turbulence={1}
-            glow={2}
-            opacity={0.28}
-            flowDirection="down"
-            mouseInteraction
-            mouseStrength={1}
-            mouseRadius={0.35}
-          />
+          {alternateBackground ? (
+            <Dither
+              waveColor={[0.48, 0.16, 0.9]}
+              waveSpeed={0.08}
+              waveFrequency={3}
+              waveAmplitude={0.35}
+              colorNum={4}
+              pixelSize={2}
+              enableMouseInteraction
+              mouseRadius={0.3}
+            />
+          ) : (
+            <Silk speed={5} scale={1.1} color="#7C3AED" noiseIntensity={1.2} rotation={0.15} />
+          )}
         </div>
         <header className="topbar">
           <button className="mobile-menu">
@@ -290,8 +292,8 @@ export default function Home() {
             <strong>{topic || "Untitled note"}</strong>
           </div>
           <div className="top-actions">
-            <button title="Toggle theme" onClick={() => setDark(!dark)}>
-              {dark ? <Sun size={17} /> : <Moon size={17} />}
+            <button title="Change background atmosphere" onClick={() => setAlternateBackground(!alternateBackground)}>
+              {alternateBackground ? <Sun size={17} /> : <Moon size={17} />}
             </button>
             <button className="avatar">AM</button>
           </div>
