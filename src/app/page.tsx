@@ -72,6 +72,32 @@ const goalOptions = [
   "Apply the ideas in practice",
 ];
 
+const LIBRARY_STORAGE_KEY = "lumen-study-library-v1";
+
+type SavedStudyNote = {
+  id: string;
+  title: string;
+  topic: string;
+  content: string;
+  updatedAt: number;
+};
+
+function createSavedStudyNote(topic: string, content: string): SavedStudyNote {
+  const safeTopic = topic.trim() || "Untitled note";
+  const title = content.match(/^# (.+)$/m)?.[1] || safeTopic;
+
+  return {
+    id:
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    title,
+    topic: safeTopic,
+    content,
+    updatedAt: Date.now(),
+  };
+}
+
 function NoteBody({ note, topic }: { note: string; topic: string }) {
   const title = note.match(/^# (.+)$/m)?.[1] || topic || "Untitled study note";
   const sections = Array.from(
@@ -135,6 +161,8 @@ export default function Home() {
   const [prepAmount, setPrepAmount] = useState("45");
   const [prepUnit, setPrepUnit] = useState<"minutes" | "hours" | "days">("minutes");
   const [routine, setRoutine] = useState("");
+  const [library, setLibrary] = useState<SavedStudyNote[]>([]);
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [note, setNote] = useState(sampleNote);
   const [sources, setSources] = useState<File[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -143,6 +171,39 @@ export default function Home() {
   const [alternateBackground, setAlternateBackground] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const noteAreaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      const storedLibrary = window.localStorage.getItem(LIBRARY_STORAGE_KEY);
+      if (!storedLibrary) return;
+      const parsed = JSON.parse(storedLibrary) as SavedStudyNote[];
+      if (Array.isArray(parsed)) {
+        setLibrary(parsed);
+      }
+    } catch {
+      // Ignore invalid saved library data.
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(LIBRARY_STORAGE_KEY, JSON.stringify(library));
+  }, [library]);
+
+  function openSavedNote(savedNote: SavedStudyNote) {
+    setSelectedNoteId(savedNote.id);
+    setTopic(savedNote.topic);
+    setNote(savedNote.content);
+  }
+
+  function deleteSavedNote(id: string) {
+    setLibrary((current) => current.filter((noteItem) => noteItem.id !== id));
+    if (selectedNoteId === id) {
+      setSelectedNoteId(null);
+      setTopic("");
+      setNote(sampleNote);
+    }
+  }
+
   async function generateNote() {
     if (!topic.trim()) return;
     setIsGenerating(true);
@@ -162,8 +223,16 @@ export default function Home() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
+      const nextNote = data.note || `# ${topic}\n\nNo note was returned.`;
+      const savedNote = createSavedStudyNote(topic, nextNote);
+      setLibrary((current) => {
+        const withoutCurrent = current.filter((item) => item.id !== selectedNoteId);
+        const nextLibrary = [savedNote, ...withoutCurrent].slice(0, 20);
+        return nextLibrary;
+      });
+      setSelectedNoteId(savedNote.id);
       setRoutine(buildStudyRoutine(topic, prepAmount, goal, prepUnit));
-      setNote(data.note);
+      setNote(nextNote);
     } catch (error) {
       setRoutine(buildStudyRoutine(topic, prepAmount, goal, prepUnit));
       setNote(
@@ -243,6 +312,7 @@ export default function Home() {
             setPrepAmount("45");
             setPrepUnit("minutes");
             setRoutine("");
+            setSelectedNoteId(null);
             setSources([]);
             setNote(sampleNote);
           }}
@@ -252,18 +322,33 @@ export default function Home() {
           <span className="shortcut">⌘ N</span>
         </button>
         <div className="side-label">Your library</div>
-        <button className="library-item active cursor-target">
-          <FileText size={16} />
-          <span>Asking better questions</span>
-        </button>
-        <button className="library-item cursor-target">
-          <FileText size={16} />
-          <span>Photosynthesis</span>
-        </button>
-        <button className="library-item cursor-target">
-          <FileText size={16} />
-          <span>Design principles</span>
-        </button>
+        {library.length === 0 ? (
+          <div className="library-empty">No saved notes yet.</div>
+        ) : (
+          library.map((savedNote) => (
+            <div className="library-item-row" key={savedNote.id}>
+              <button
+                type="button"
+                className={`library-item ${selectedNoteId === savedNote.id ? "active" : ""} cursor-target`}
+                onClick={() => openSavedNote(savedNote)}
+              >
+                <FileText size={16} />
+                <span>{savedNote.title}</span>
+              </button>
+              <button
+                type="button"
+                className="library-delete cursor-target"
+                aria-label={`Delete ${savedNote.title}`}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  deleteSavedNote(savedNote.id);
+                }}
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ))
+        )}
         <div className="sidebar-bottom">
           <button
             className="plain-button cursor-target"
