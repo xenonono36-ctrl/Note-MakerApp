@@ -2,9 +2,28 @@ import { NextResponse } from "next/server";
 
 const systemPrompt = `You are Lumen, an expert study-guide author and careful source analyst. Produce a complete, accurate, useful study guide in Markdown.
 
-Output contract: begin with exactly one level-1 heading containing the topic. Use level-2 headings for major sections. Include these sections when relevant: Overview, Key Concepts and Definitions, Important Details and Examples, Source Summaries, Connections Across Sources, Diagrams or Tables, Practice Questions with Answers, Exam-Style Points, Key Takeaways, and Quick Revision Checklist. Keep explanations clear and layered for the requested level. Use bullets, numbered steps, Markdown tables, and fenced code blocks for diagrams when they improve understanding. Write mathematical notation as LaTeX surrounded by $ for inline math or $$ for display math.
+Output contract: begin with exactly one level-1 heading containing the topic. Use level-2 headings for major sections. Include these sections when relevant: Overview, Key Concepts and Definitions, Important Details and Examples, Source Summaries, Connections Across Sources, Diagrams or Tables, Practice Questions with Answers, Exam-Style Points, Key Takeaways, and Quick Revision Checklist. Keep explanations clear and layered for the requested level. Use bullets, numbered steps, Markdown tables, and fenced code blocks for diagrams when they improve understanding. Write mathematical notation as LaTeX surrounded by $ for inline math or $$ for display math. Make the guide teach the material, not merely list or repeat the source text. Define important terms, explain cause and effect, preserve meaningful details, and connect ideas across sources.
 
-Evidence rules: when sources are attached, use ONLY those sources. Do not add general knowledge, invented examples, citations, or facts. Attribute claims to the source filename when possible. If the sources are unclear, incomplete, contradictory, or do not answer part of the topic, state that plainly. Never output analysis, apologies, or code fences around the entire guide.`;
+Evidence rules: when sources are attached, treat them as the factual authority. Do not invent source claims, citations, examples, or numbers. You may use the topic and requested learning goal to organize and explain information that is explicitly present in the sources. Attribute important claims to the source filename when useful. Compare sources when they overlap or disagree. If the sources are unclear, incomplete, contradictory, or do not answer part of the topic, state that plainly in the relevant section while still making the strongest useful guide possible. Never output analysis, apologies, or code fences around the entire guide.`;
+
+const maxTextSourceCharacters = 80_000;
+const maxCombinedTextCharacters = 240_000;
+
+function cleanHtml(html: string) {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>|<\/div>|<\/li>|<\/h[1-6]>/gi, "\n")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n\s*\n\s*\n/g, "\n\n")
+    .trim();
+}
 
 export async function POST(request: Request) {
   try {
@@ -20,15 +39,31 @@ export async function POST(request: Request) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return NextResponse.json({ error: "Add GEMINI_API_KEY to .env.local to generate notes." }, { status: 503 });
     const sourceParts: Array<{ text: string } | { inlineData: { mimeType: string; data: string } }> = [];
+    let combinedTextCharacters = 0;
+    let omittedTextSources = 0;
     for (const file of files) {
       if (file.size > 20 * 1024 * 1024) return NextResponse.json({ error: `${file.name} is larger than the 20 MB limit.` }, { status: 413 });
       if (file.type === "application/pdf") {
+        sourceParts.push({ text: `SOURCE FILE: ${file.name}\nThe following document is the complete PDF source for this filename.` });
         sourceParts.push({ inlineData: { mimeType: file.type, data: Buffer.from(await file.arrayBuffer()).toString("base64") } });
       } else if (["text/plain", "text/markdown", "text/html"].includes(file.type) || /\.(txt|md|html?)$/i.test(file.name)) {
-        sourceParts.push({ text: `SOURCE FILE: ${file.name}\n${await file.text()}` });
+        const rawText = await file.text();
+        const sourceText = /\.(html?)$/i.test(file.name) || file.type === "text/html" ? cleanHtml(rawText) : rawText.trim();
+        const remainingCharacters = maxCombinedTextCharacters - combinedTextCharacters;
+        if (remainingCharacters <= 0) {
+          omittedTextSources += 1;
+          continue;
+        }
+        const limitedText = sourceText.slice(0, Math.min(maxTextSourceCharacters, remainingCharacters));
+        combinedTextCharacters += limitedText.length;
+        sourceParts.push({ text: `--- SOURCE FILE: ${file.name} ---\n${limitedText}\n--- END SOURCE FILE: ${file.name} ---` });
+        if (limitedText.length < sourceText.length) omittedTextSources += 1;
       } else {
         return NextResponse.json({ error: `${file.name} is not supported. Attach PDF, TXT, MD, or HTML files.` }, { status: 415 });
       }
+    }
+    if (omittedTextSources > 0) {
+      sourceParts.push({ text: `NOTICE: ${omittedTextSources} text source${omittedTextSources === 1 ? " was" : "s were"} truncated or omitted because of the context budget. Do not treat missing portions as evidence.` });
     }
     sourceParts.push({ text: `Create the study guide for this topic: ${topic}\nLevel: ${level}\nFormat: ${format}\nFocus: ${focus}\nGoal: ${goal}\n\nWhen sources are attached, use only those sources as evidence. Clearly say when the sources do not contain enough information. Do not invent facts or citations.` });
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, {
