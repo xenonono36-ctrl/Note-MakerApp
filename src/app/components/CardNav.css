@@ -14,10 +14,10 @@
     overflow: hidden;
     border: 1px solid rgba(216, 180, 254, .2);
     border-radius: 14px;
-    background: rgba(14, 9, 24, .66);
-    box-shadow: 0 14px 40px rgba(5, 3, 12, .25), inset 0 1px 0 rgba(255,255,255,.12);
-    backdrop-filter: blur(22px) saturate(135%);
-    -webkit-backdrop-filter: blur(22px) saturate(135%);
+    background: linear-gradient(110deg, rgba(255,255,255,.13), rgba(255,255,255,.045) 42%, rgba(192,132,252,.12));
+    box-shadow: 0 18px 48px rgba(5, 3, 12, .3), inset 0 1px 0 rgba(255,255,255,.2), inset 0 -1px 0 rgba(255,255,255,.05);
+    backdrop-filter: blur(28px) saturate(155%);
+    -webkit-backdrop-filter: blur(28px) saturate(155%);
     will-change: height;
 }
 
@@ -29,6 +29,23 @@
     height: 1px;
     background: linear-gradient(90deg, transparent, #c084fc, #67e8f9, transparent);
     content: "";
+}
+
+.card-nav::after {
+    position: absolute;
+    top: 0;
+    left: -35%;
+    width: 28%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.16), transparent);
+    content: "";
+    pointer-events: none;
+    transform: skewX(-18deg);
+    transition: left .7s ease;
+}
+
+.card-nav:hover::after {
+    left: 108%;
 }
 
 .card-nav-top {
@@ -76,6 +93,10 @@
     border-color: rgba(216, 180, 254, .5);
     background: rgba(192,132,252,.18);
     transform: translateY(-2px);
+}
+
+.card-nav-menu:hover {
+    box-shadow: 0 0 0 4px rgba(192,132,252,.08), 0 8px 18px rgba(5,3,12,.2);
 }
 
 .card-nav-cta:hover {
