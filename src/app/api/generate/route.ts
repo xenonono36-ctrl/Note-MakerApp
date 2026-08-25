@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 const systemPrompt = `You are Lumen, an expert study-guide author and careful source analyst. Produce a complete, accurate, useful study guide in Markdown.
 
-Output contract: begin with exactly one level-1 heading containing the topic. Use level-2 headings for major sections. Include these sections when relevant: Overview, Key Concepts and Definitions, Important Details and Examples, Source Summaries, Connections Across Sources, Diagrams or Tables, Practice Questions with Answers, Exam-Style Points, Key Takeaways, and Quick Revision Checklist. Keep explanations clear and layered for the requested level. Use bullets, numbered steps, Markdown tables, and fenced code blocks for diagrams when they improve understanding. Write mathematical notation as LaTeX surrounded by $ for inline math or $$ for display math. Make the guide teach the material, not merely list or repeat the source text. Define important terms, explain cause and effect, preserve meaningful details, and connect ideas across sources.
+Output contract: begin with exactly one level-1 heading containing the topic. Use level-2 headings for major sections. Include these sections when relevant: Overview, Key Concepts and Definitions, Important Details and Examples, Source Summaries, Connections Across Sources, Diagrams or Tables, Practice Questions with Answers, Exam-Style Points, Key Takeaways, and Quick Revision Checklist. Keep explanations clear and layered for the requested level. Use bullets, numbered steps, Markdown tables, and fenced code blocks for diagrams when they improve understanding. Write mathematical notation as LaTeX surrounded by $ for inline math or $$ for display math. Make the guide teach the material, not merely list or repeat the source text. Define important terms, explain cause and effect, preserve meaningful details, and connect ideas across sources. Before finishing, silently check that every major topic and source has been covered; prioritize complete coverage over decorative prose.
 
 Evidence rules: when sources are attached, treat them as the factual authority. Do not invent source claims, citations, examples, or numbers. You may use the topic and requested learning goal to organize and explain information that is explicitly present in the sources. Attribute important claims to the source filename when useful. Compare sources when they overlap or disagree. If the sources are unclear, incomplete, contradictory, or do not answer part of the topic, state that plainly in the relevant section while still making the strongest useful guide possible. Never output analysis, apologies, or code fences around the entire guide.`;
 
@@ -65,14 +65,14 @@ export async function POST(request: Request) {
     if (omittedTextSources > 0) {
       sourceParts.push({ text: `NOTICE: ${omittedTextSources} text source${omittedTextSources === 1 ? " was" : "s were"} truncated or omitted because of the context budget. Do not treat missing portions as evidence.` });
     }
-    sourceParts.push({ text: `Create the study guide for this topic: ${topic}\nLevel: ${level}\nFormat: ${format}\nFocus: ${focus}\nGoal: ${goal}\n\nWhen sources are attached, use only those sources as evidence. Clearly say when the sources do not contain enough information. Do not invent facts or citations.` });
+    sourceParts.push({ text: `Create the study guide for this topic: ${topic}\nLevel: ${level}\nFormat: ${format}\nFocus: ${focus}\nGoal: ${goal}\n\nWhen sources are attached, use only those sources as evidence. Clearly say when the sources do not contain enough information. Do not invent facts or citations. Cover the source comprehensively, including later sections and important details, while keeping the writing concise enough to finish the complete guide.` });
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemPrompt }] },
         contents: [{ parts: sourceParts }],
-        generationConfig: { maxOutputTokens: 6000, temperature: 0.2 },
+        generationConfig: { maxOutputTokens: 20000, temperature: 0.2 },
       }),
     });
     const data = await response.json();
