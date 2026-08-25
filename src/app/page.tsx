@@ -127,7 +127,7 @@ function NoteBody({ note, topic }: { note: string; topic: string }) {
       <nav className="note-tabs" aria-label="Study note sections">
         {sections.map((section, index) => (
           <a href={`#note-section-${index}`} key={section}>
-            {section}
+            <span>{section}</span>
           </a>
         ))}
       </nav>

@@ -1017,6 +1017,85 @@
     padding-right: 0;
 }
 
+@media(min-width:901px) {
+    .study-guide-area {
+        display: grid;
+        grid-template-columns: 48px minmax(0, 900px);
+        justify-content: center;
+        gap: 22px;
+        padding: 0 18px 36px;
+    }
+
+    .note-tabs {
+        position: sticky;
+        top: 88px;
+        align-self: start;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 48px;
+        min-height: 0;
+        padding: 24px 8px 16px;
+        border: 1px solid rgba(216,180,254,.24);
+        border-radius: 14px;
+        background: rgba(11,7,18,.84);
+        box-shadow: 0 14px 30px rgba(5,3,12,.25);
+        overflow: visible !important;
+        backdrop-filter: blur(18px) saturate(135%);
+    }
+
+    .note-tabs a {
+        display: grid;
+        place-items: center;
+        flex: 0 0 auto;
+        width: 100%;
+        min-height: 150px;
+        padding: 10px 8px;
+        border: 1px solid currentColor;
+        border-radius: 9px;
+        font-size: 14px;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    .note-tabs a span {
+        display: block;
+        max-height: 100%;
+        overflow: hidden;
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        white-space: normal;
+    }
+
+    .note-tabs a:hover {
+        transform: scale(1.03);
+    }
+
+    .note-tabs a:nth-child(2) {
+        min-height: 270px;
+    }
+
+    .note-tabs a:nth-child(3) {
+        min-height: 170px;
+    }
+
+    .note-tabs a:nth-child(4) {
+        min-height: 240px;
+    }
+
+    .notebook {
+        width: 100%;
+        max-width: none;
+        margin: 36px 0 0;
+    }
+}
+
+@media(max-width:900px) {
+    .study-guide-area {
+        display: block;
+    }
+}
+
 @media (hover:hover) {
     .sidebar-collapsed .sidebar:hover .brand-logo {
         width: 150px;
