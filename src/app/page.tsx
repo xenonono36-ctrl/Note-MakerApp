@@ -750,7 +750,7 @@ export default function Home() {
             </div>
           </div>
           {routine && (
-            <div className="routine-card">
+            <div className="routine-card cursor-target">
               <div className="routine-card-header">
                 <span className="routine-kicker">Study routine</span>
                 <strong>
