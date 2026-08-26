@@ -14,10 +14,11 @@ function DitherScene({ props }: { props: Required<Pick<DitherProps, "waveSpeed" 
   const materialRef = useRef<ShaderMaterial>(null);
   const { viewport, size, gl } = useThree();
   const mouse = useRef(new Vector2(-1000, -1000));
+  const elapsedTime = useRef(0);
   const uniforms = useRef({ resolution: { value: new Vector2(1, 1) }, time: { value: 0 }, waveSpeed: { value: props.waveSpeed }, waveFrequency: { value: props.waveFrequency }, waveAmplitude: { value: props.waveAmplitude }, colorNum: { value: props.colorNum }, pixelSize: { value: props.pixelSize }, waveColor: { value: new Color(...props.waveColor) }, mousePos: { value: mouse.current }, mouseRadius: { value: props.mouseRadius } });
   useEffect(() => { const dpr = gl.getPixelRatio(); uniforms.current.resolution.value.set(size.width * dpr, size.height * dpr); }, [gl, size]);
   useEffect(() => { const element = gl.domElement; const move = (event: PointerEvent) => { const rect = element.getBoundingClientRect(); mouse.current.set((event.clientX - rect.left) * gl.getPixelRatio(), (event.clientY - rect.top) * gl.getPixelRatio()); }; if (props.enableMouseInteraction) element.addEventListener("pointermove", move); return () => element.removeEventListener("pointermove", move); }, [gl, props.enableMouseInteraction]);
-  useFrame(({ clock }) => { const values = uniforms.current; if (!props.disableAnimation) values.time.value = clock.getElapsedTime(); values.waveSpeed.value = props.waveSpeed; values.waveFrequency.value = props.waveFrequency; values.waveAmplitude.value = props.waveAmplitude; values.colorNum.value = props.colorNum; values.pixelSize.value = props.pixelSize; values.waveColor.value.set(...props.waveColor); values.mouseRadius.value = props.mouseRadius; });
+  useFrame((_, delta) => { const values = uniforms.current; if (!props.disableAnimation) { elapsedTime.current += delta; values.time.value = elapsedTime.current; } values.waveSpeed.value = props.waveSpeed; values.waveFrequency.value = props.waveFrequency; values.waveAmplitude.value = props.waveAmplitude; values.colorNum.value = props.colorNum; values.pixelSize.value = props.pixelSize; values.waveColor.value.set(...props.waveColor); values.mouseRadius.value = props.mouseRadius; });
   return <mesh scale={[viewport.width, viewport.height, 1]}><planeGeometry args={[1, 1]} /><shaderMaterial ref={materialRef} uniforms={uniforms.current} vertexShader={vertexShader} fragmentShader={fragmentShader} /></mesh>;
 }
 

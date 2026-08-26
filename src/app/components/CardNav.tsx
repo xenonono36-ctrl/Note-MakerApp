@@ -9,6 +9,7 @@ import "./CardNav.css";
 
 type CardNavProps = {
   topic: string;
+  hasNote: boolean;
   level: string;
   format: string;
   noteCount: number;
@@ -19,6 +20,7 @@ type CardNavProps = {
 
 export default function CardNav({
   topic,
+  hasNote,
   level,
   format,
   noteCount,
@@ -84,8 +86,8 @@ export default function CardNav({
           <div className="nav-card nav-card-lime" ref={setCardRef(0)}>
             <div className="nav-card-label"><BookOpen size={16} /> Current note</div>
             <strong>{topic || "Untitled note"}</strong>
-            <span className="nav-card-meta">Ready to read</span>
-            <a className="nav-card-link" href="#study-guide">Jump to note <ArrowUpRight size={15} /></a>
+            <span className="nav-card-meta">{hasNote ? "Ready to read" : "Waiting for a topic"}</span>
+            {hasNote && <a className="nav-card-link" href="#study-guide">Jump to note <ArrowUpRight size={15} /></a>}
           </div>
           <div className="nav-card nav-card-violet" ref={setCardRef(1)}>
             <div className="nav-card-label"><Sparkles size={16} /> Study setup</div>

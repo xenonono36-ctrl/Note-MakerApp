@@ -27,6 +27,7 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
 import "katex/dist/katex.min.css";
 import Silk from "./components/Silk";
 import Dither from "./components/Dither";
@@ -87,9 +88,28 @@ type SavedStudyNote = {
   topic: string;
   content: string;
   updatedAt: number;
+  settings: NoteSettings;
 };
 
-function createSavedStudyNote(topic: string, content: string): SavedStudyNote {
+type NoteSettings = {
+  level: string;
+  format: string;
+  focus: string;
+  goal: string;
+  prepAmount: string;
+  prepUnit: "minutes" | "hours" | "days";
+};
+
+const defaultNoteSettings: NoteSettings = {
+  level: "Intermediate",
+  format: "Study guide",
+  focus: "Balanced coverage",
+  goal: "Understand and remember the key information",
+  prepAmount: "45",
+  prepUnit: "minutes",
+};
+
+function createSavedStudyNote(topic: string, content: string, settings: NoteSettings): SavedStudyNote {
   const safeTopic = topic.trim() || "Untitled note";
   const title = content.match(/^# (.+)$/m)?.[1] || safeTopic;
 
@@ -102,7 +122,16 @@ function createSavedStudyNote(topic: string, content: string): SavedStudyNote {
     topic: safeTopic,
     content,
     updatedAt: Date.now(),
+    settings,
   };
+}
+
+function formatUpdatedAt(timestamp: number) {
+  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(timestamp);
+}
+
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] || character);
 }
 
 function decodeMathEntities(markdown: string) {
@@ -152,7 +181,7 @@ function NoteBody({ note, topic }: { note: string; topic: string }) {
         </div>
         <ReactMarkdown
           remarkPlugins={[remarkGfm, remarkMath]}
-          rehypePlugins={[rehypeKatex, rehypeRaw]}
+          rehypePlugins={[rehypeKatex, rehypeRaw, rehypeSanitize]}
           components={{
             h2: ({ children }) => {
               const index = sections.findIndex(
@@ -391,14 +420,23 @@ export default function Home() {
   const [routine, setRoutine] = useState("");
   const [library, setLibrary] = useState<SavedStudyNote[]>([]);
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
-  const [note, setNote] = useState(sampleNote);
+  const [note, setNote] = useState("");
   const [sources, setSources] = useState<File[]>([]);
+  const [sourceError, setSourceError] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [copied, setCopied] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [alternateBackground, setAlternateBackground] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [libraryQuery, setLibraryQuery] = useState("");
+  const [isSetupOpen, setIsSetupOpen] = useState(true);
   const noteAreaRef = useRef<HTMLDivElement>(null);
+
+  const noteSettings: NoteSettings = { level, format, focus, goal, prepAmount, prepUnit };
+  const filteredLibrary = library.filter((savedNote) =>
+    savedNote.title.toLowerCase().includes(libraryQuery.trim().toLowerCase()),
+  );
 
   useEffect(() => {
     try {
@@ -406,7 +444,7 @@ export default function Home() {
       if (!storedLibrary) return;
       const parsed = JSON.parse(storedLibrary) as SavedStudyNote[];
       if (Array.isArray(parsed)) {
-        setLibrary(parsed);
+        setLibrary(parsed.map((savedNote) => ({ ...savedNote, settings: { ...defaultNoteSettings, ...savedNote.settings } })));
       }
     } catch {
       // Ignore invalid saved library data.
@@ -421,20 +459,52 @@ export default function Home() {
     setSelectedNoteId(savedNote.id);
     setTopic(savedNote.topic);
     setNote(savedNote.content);
+    setRoutine(buildStudyRoutine(savedNote.topic, savedNote.settings.prepAmount, savedNote.settings.goal, savedNote.settings.prepUnit));
+    setLevel(savedNote.settings.level);
+    setFormat(savedNote.settings.format);
+    setFocus(savedNote.settings.focus);
+    setGoal(savedNote.settings.goal);
+    setPrepAmount(savedNote.settings.prepAmount);
+    setPrepUnit(savedNote.settings.prepUnit);
+    setSources([]);
+    setErrorMessage("");
+    setIsSetupOpen(false);
+  }
+
+  function resetToNewNote() {
+    setTopic("");
+    setGoal("Understand and remember the key information");
+    setPrepAmount("45");
+    setPrepUnit("minutes");
+    setRoutine("");
+    setSelectedNoteId(null);
+    setSources([]);
+    setSourceError("");
+    setErrorMessage("");
+    setNote("");
+    setIsSetupOpen(true);
+  }
+
+  function renameSavedNote(savedNote: SavedStudyNote) {
+    const nextTitle = window.prompt("Rename note", savedNote.title)?.trim();
+    if (!nextTitle || nextTitle === savedNote.title) return;
+    setLibrary((current) => current.map((item) => item.id === savedNote.id ? { ...item, title: nextTitle, updatedAt: Date.now() } : item));
   }
 
   function deleteSavedNote(id: string) {
+    if (!window.confirm("Delete this saved note?")) return;
     setLibrary((current) => current.filter((noteItem) => noteItem.id !== id));
     if (selectedNoteId === id) {
       setSelectedNoteId(null);
       setTopic("");
-      setNote(sampleNote);
+      setNote("");
     }
   }
 
   async function generateNote() {
     if (!topic.trim()) return;
     setIsGenerating(true);
+    setErrorMessage("");
     try {
       const formData = new FormData();
       formData.append("topic", topic);
@@ -449,10 +519,10 @@ export default function Home() {
         method: "POST",
         body: formData,
       });
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error);
       const nextNote = data.note || `# ${topic}\n\nNo note was returned.`;
-      const savedNote = createSavedStudyNote(topic, nextNote);
+      const savedNote = createSavedStudyNote(topic, nextNote, noteSettings);
       setLibrary((current) => {
         const withoutCurrent = current.filter((item) => item.id !== selectedNoteId);
         const nextLibrary = [savedNote, ...withoutCurrent].slice(0, 20);
@@ -461,19 +531,22 @@ export default function Home() {
       setSelectedNoteId(savedNote.id);
       setRoutine(buildStudyRoutine(topic, prepAmount, goal, prepUnit));
       setNote(nextNote);
+      setIsSetupOpen(false);
     } catch (error) {
       setRoutine(buildStudyRoutine(topic, prepAmount, goal, prepUnit));
-      setNote(
-        `## Something needs attention\n\n${error instanceof Error ? error.message : "Unable to generate a note."}`,
-      );
+      setErrorMessage(error instanceof Error ? error.message : "Unable to generate a note.");
     } finally {
       setIsGenerating(false);
     }
   }
   async function copyNote() {
-    await navigator.clipboard.writeText(note);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1800);
+    try {
+      await navigator.clipboard.writeText(note);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setErrorMessage("Clipboard access was blocked. Select the note text and copy it manually.");
+    }
   }
   function getHtmlDocument() {
     const styles = Array.from(document.styleSheets)
@@ -487,7 +560,7 @@ export default function Home() {
         }
       })
       .join("\n");
-    const title = topic.trim() || "Chrono Study Note";
+    const title = escapeHtml(topic.trim() || "Chrono Study Note");
     return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title><style>${styles}body{margin:0;background:#e4decb}.study-guide-export{min-height:100vh}</style></head><body><main class="study-guide-export">${noteAreaRef.current?.innerHTML || ""}</main></body></html>`;
   }
   function createHtmlUrl() {
@@ -536,16 +609,7 @@ export default function Home() {
         </div>
         <button
           className="new-note cursor-target"
-          onClick={() => {
-            setTopic("");
-            setGoal("Understand and remember the key information");
-            setPrepAmount("45");
-            setPrepUnit("minutes");
-            setRoutine("");
-            setSelectedNoteId(null);
-            setSources([]);
-            setNote(sampleNote);
-          }}
+          onClick={resetToNewNote}
         >
           <WandSparkles size={16} />
           <span className="button-label">New note</span>
@@ -555,15 +619,28 @@ export default function Home() {
         {library.length === 0 ? (
           <div className="library-empty">No saved notes yet.</div>
         ) : (
-          library.map((savedNote) => (
+          <>
+            <input
+              className="library-search"
+              aria-label="Search saved notes"
+              placeholder="Search notes"
+              value={libraryQuery}
+              onChange={(event) => setLibraryQuery(event.target.value)}
+            />
+            {filteredLibrary.map((savedNote) => (
             <div className="library-item-row" key={savedNote.id}>
               <button
                 type="button"
                 className={`library-item ${selectedNoteId === savedNote.id ? "active" : ""} cursor-target`}
                 onClick={() => openSavedNote(savedNote)}
+                onDoubleClick={() => renameSavedNote(savedNote)}
+                title={`${savedNote.title} · updated ${formatUpdatedAt(savedNote.updatedAt)}`}
               >
                 <FileText size={16} />
-                <span>{savedNote.title}</span>
+                <span><strong>{savedNote.title}</strong><small>{formatUpdatedAt(savedNote.updatedAt)}</small></span>
+              </button>
+              <button type="button" className="library-rename cursor-target" aria-label={`Rename ${savedNote.title}`} onClick={() => renameSavedNote(savedNote)}>
+                <span aria-hidden="true">Aa</span>
               </button>
               <button
                 type="button"
@@ -577,7 +654,9 @@ export default function Home() {
                 <X size={14} />
               </button>
             </div>
-          ))
+            ))}
+            {filteredLibrary.length === 0 && <div className="library-empty">No notes match that search.</div>}
+          </>
         )}
         <div className="sidebar-bottom">
           <button
@@ -621,19 +700,13 @@ export default function Home() {
         </div>
         <CardNav
           topic={topic}
+          hasNote={Boolean(note)}
           level={level}
           format={format}
           noteCount={library.length}
           alternateBackground={alternateBackground}
           onNewNote={() => {
-            setTopic("");
-            setGoal("Understand and remember the key information");
-            setPrepAmount("45");
-            setPrepUnit("minutes");
-            setRoutine("");
-            setSelectedNoteId(null);
-            setSources([]);
-            setNote(sampleNote);
+            resetToNewNote();
           }}
           onToggleBackground={() => setAlternateBackground((current) => !current)}
         />
@@ -653,7 +726,17 @@ export default function Home() {
               <Sparkles size={27} />
             </div>
           </div>
-          <div className="builder-panel">
+          <div className={`builder-panel${isSetupOpen ? " is-open" : " is-collapsed"}`}>
+            <div className="builder-heading">
+              <div>
+                <span className="builder-kicker">Study setup</span>
+                {!isSetupOpen && <strong>{level} · {format}</strong>}
+              </div>
+              {note && <button type="button" className="builder-toggle cursor-target" onClick={() => setIsSetupOpen((current) => !current)} aria-expanded={isSetupOpen}>
+                {isSetupOpen ? "Hide setup" : "Edit setup"}<ChevronDown size={15} aria-hidden="true" />
+              </button>}
+            </div>
+            <div className="builder-fields">
             <label htmlFor="topic">Topic or question</label>
             <div className="topic-input-shell">
               <textarea
@@ -673,7 +756,16 @@ export default function Home() {
                 multiple
                 onChange={(event) => {
                   const files = Array.from(event.target.files || []);
-                  setSources((current) => [...current, ...files].slice(0, 8));
+                  const allowed = /\.(pdf|txt|md|html?)$/i;
+                  const invalid = files.find((file) => !allowed.test(file.name) || file.size > 20 * 1024 * 1024);
+                  if (invalid) {
+                    setSourceError(`${invalid.name} is unsupported or larger than 20 MB.`);
+                  } else if (sources.length + files.length > 8) {
+                    setSourceError("You can attach up to 8 source files.");
+                  } else {
+                    setSourceError("");
+                    setSources((current) => [...current, ...files.filter((file) => !current.some((existing) => existing.name === file.name && existing.size === file.size))]);
+                  }
                   event.currentTarget.value = "";
                 }}
               />
@@ -681,6 +773,7 @@ export default function Home() {
                 <Paperclip size={16} /> Attach sources
               </label>
               <span>PDF, TXT, MD, or HTML · up to 8 files</span>
+              {sourceError && <span className="field-error" role="alert">{sourceError}</span>}
             </div>
             {sources.length > 0 && (
               <div className="source-list">
@@ -777,23 +870,26 @@ export default function Home() {
                 {isGenerating ? "Building..." : "Build my note"}
               </button>
             </div>
+            </div>
           </div>
+          {errorMessage && <div className="generation-error" role="alert" aria-live="assertive"><strong>Could not build this note.</strong><span>{errorMessage}</span><button type="button" onClick={generateNote}>Try again</button></div>}
           <div className="note-header">
             <div>
               <div className="note-kicker">
-                <span className="green-dot" /> Ready to read
+                <span className="green-dot" /> {note ? "Ready to read" : "Waiting for a topic"}
               </div>
-              <h2>{topic || "The Art of Asking Better Questions"}</h2>
+              <h2>{topic || "No note yet"}</h2>
             </div>
-            <div className="note-tools">
-              <button className="cursor-target" title="Copy note" onClick={copyNote}>
+            {note && <div className="note-tools">
+              <button className="cursor-target" aria-label={copied ? "Note copied" : "Copy note"} title="Copy note" onClick={copyNote}>
                 {copied ? <Check size={16} /> : <Clipboard size={16} />}
               </button>
-              <button className="cursor-target" title="Open HTML in a new tab" onClick={openHtmlNote}>
+              <button className="cursor-target" aria-label="Open HTML in a new tab" title="Open HTML in a new tab" onClick={openHtmlNote}>
                 <ExternalLink size={16} />
               </button>
               <button
                 className="cursor-target"
+                aria-label="Download HTML"
                 title="Download HTML"
                 onClick={downloadNote}
                 disabled={isDownloading}
@@ -804,7 +900,7 @@ export default function Home() {
                   <FileCode size={16} />
                 )}
               </button>
-            </div>
+            </div>}
           </div>
           {routine && (
             <div className="routine-card cursor-target">
@@ -824,11 +920,11 @@ export default function Home() {
             </div>
           )}
           <div ref={noteAreaRef}>
-            <NoteBody note={note} topic={topic} />
+            {note ? <NoteBody note={note} topic={topic} /> : <div className="empty-note-state"><div className="empty-note-icon"><FileText size={24} /></div><span className="note-kicker">Your note will appear here</span><h2>Start with a question worth exploring.</h2><p>Give Chrono a topic, goal, and time budget. Your study guide will be saved here automatically.</p><button type="button" className="example-button cursor-target" onClick={() => { setTopic("How do neural networks learn?"); setNote(sampleNote); setIsSetupOpen(false); }}>Preview an example</button></div>}
           </div>
-          <footer className="footer-note">
+          {note && <footer className="footer-note">
             Drafted with Gemini <span>•</span> Edit freely, make it yours
-          </footer>
+          </footer>}
         </div>
       </section>
     </main>
