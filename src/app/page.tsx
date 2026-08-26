@@ -18,6 +18,11 @@ import {
   ArrowRightLeft,
   Pause,
   Play,
+  BookOpen,
+  BrainCircuit,
+  FileOutput,
+  Layers3,
+  Timer,
   WandSparkles,
   X,
 } from "lucide-react";
@@ -944,6 +949,43 @@ export default function Home() {
           {note && <footer className="footer-note">
             Drafted with Gemini <span>•</span> Edit freely, make it yours
           </footer>}
+          <section className="product-overview" aria-labelledby="about-chrono-heading">
+            <div className="product-overview-label">What is Chrono Notes?</div>
+            <p id="about-chrono-heading">
+              Chrono Notes is a study writing workspace that turns a topic, question, or your own source files into a structured note you can understand, review, and use. Shape each note around your level, learning goal, focus, and available preparation time.
+            </p>
+          </section>
+          <section className="specifications" aria-labelledby="specifications-heading">
+            <div className="specifications-heading">
+              <div className="product-overview-label">Specifications</div>
+              <h2 id="specifications-heading">Built for focused study sessions</h2>
+            </div>
+            <div className="specification-grid">
+              <div className="specification-card">
+                <div className="specification-card-heading"><BrainCircuit size={18} aria-hidden="true" /><h3>Note generation</h3></div>
+                <dl>
+                  <div><dt>AI model</dt><dd className="accent-value">Gemini</dd></div>
+                  <div><dt>Formats</dt><dd>Study guide, deep dive, and cheat sheet</dd></div>
+                  <div><dt>Math support</dt><dd>LaTeX equations and rendered notation</dd></div>
+                  <div><dt>Output</dt><dd>Markdown with HTML export</dd></div>
+                </dl>
+              </div>
+              <div className="specification-card">
+                <div className="specification-card-heading"><BookOpen size={18} aria-hidden="true" /><h3>Study workflow</h3></div>
+                <dl>
+                  <div><dt>Sources</dt><dd>PDF, TXT, Markdown, and HTML files</dd></div>
+                  <div><dt>Learning levels</dt><dd>Beginner, intermediate, and advanced</dd></div>
+                  <div><dt>Study tools</dt><dd>Timed warm-up, core study, and review blocks</dd></div>
+                  <div><dt>Library</dt><dd>Up to 20 notes saved in your browser</dd></div>
+                </dl>
+              </div>
+            </div>
+            <div className="specification-strip" aria-label="Chrono Notes capabilities">
+              <span><Layers3 size={16} aria-hidden="true" /> Structured sections</span>
+              <span><FileOutput size={16} aria-hidden="true" /> Portable exports</span>
+              <span><Timer size={16} aria-hidden="true" /> Time-aware routines</span>
+            </div>
+          </section>
         </div>
       </section>
     </main>
