@@ -173,7 +173,11 @@ function decodeMathEntities(markdown: string) {
       .replace(/&lt;/g, "<")
       .replace(/&gt;/g, ">");
 
-  return markdown.replace(/\$\$([\s\S]*?)\$\$|\$([^$\n]+)\$/g, (match, block, inline) => {
+  const normalizedDelimiters = markdown
+    .replace(/\\\[([\s\S]*?)\\\]/g, (_, expression) => `$$${expression}$$`)
+    .replace(/\\\(([^\n]*?)\\\)/g, (_, expression) => `$${expression}$`);
+
+  return normalizedDelimiters.replace(/\$\$([\s\S]*?)\$\$|\$([^$\n]+)\$/g, (match, block, inline) => {
     if (block !== undefined) return `$$${decode(block)}$$`;
     return `$${decode(inline)}$`;
   });
@@ -213,7 +217,7 @@ function NoteBody({ note, topic }: { note: string; topic: string }) {
         </div>
         <ReactMarkdown
           remarkPlugins={[remarkGfm, remarkMath]}
-          rehypePlugins={[rehypeKatex, rehypeRaw, rehypeSanitize]}
+          rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeKatex]}
           components={{
             h2: ({ children }) => {
               const index = sections.findIndex(
