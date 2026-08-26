@@ -11,6 +11,13 @@
 	will-change: transform;
 }
 
+.target-cursor-active button,
+.target-cursor-active a,
+.target-cursor-active label,
+.target-cursor-active select {
+	cursor: none !important;
+}
+
 .target-cursor-dot {
 	position: absolute;
 	top: 50%;

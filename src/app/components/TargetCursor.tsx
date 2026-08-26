@@ -17,6 +17,7 @@ export default function TargetCursor({ targetSelector = ".cursor-target", hideDe
     const wrapper = wrapperRef.current;
     const corners = cornersRef.current;
     const originalCursor = document.body.style.cursor;
+    document.body.classList.add("target-cursor-active");
     if (hideDefaultCursor) document.body.style.cursor = "none";
     const move = (event: MouseEvent) => {
       wrapper.classList.toggle("is-pencil", Boolean((event.target as Element).closest(".notebook")));
@@ -44,7 +45,7 @@ export default function TargetCursor({ targetSelector = ".cursor-target", hideDe
     };
     wrapper.style.color = cursorColor;
     window.addEventListener("mousemove", move); window.addEventListener("mouseover", enter); window.addEventListener("mousedown", down); window.addEventListener("mouseup", up);
-    return () => { if (leave) leave(); wrapper.classList.remove("is-pencil"); window.removeEventListener("mousemove", move); window.removeEventListener("mouseover", enter); window.removeEventListener("mousedown", down); window.removeEventListener("mouseup", up); document.body.style.cursor = originalCursor; };
+    return () => { if (leave) leave(); wrapper.classList.remove("is-pencil"); window.removeEventListener("mousemove", move); window.removeEventListener("mouseover", enter); window.removeEventListener("mousedown", down); window.removeEventListener("mouseup", up); document.body.classList.remove("target-cursor-active"); document.body.style.cursor = originalCursor; };
   }, [cursorColor, cursorColorOnTarget, hideDefaultCursor, hoverDuration, isMobile, parallaxOn, targetSelector]);
 
   if (isMobile) return null;
