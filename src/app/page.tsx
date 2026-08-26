@@ -8,14 +8,16 @@ import {
   FileCode,
   FileText,
   LoaderCircle,
+  Minus,
   Paperclip,
   PanelLeft,
+  Plus,
   Sparkles,
   Target,
+  TimerReset,
   ArrowRightLeft,
   Pause,
   Play,
-  RotateCcw,
   WandSparkles,
   X,
 } from "lucide-react";
@@ -201,6 +203,15 @@ function RoutineTimers({ totalMinutes }: { totalMinutes: number }) {
     return `${Math.floor(seconds / 60).toString().padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
   }
 
+  function adjustTimer(index: number, amount: number) {
+    if (runningPhase !== null) return;
+    setSecondsLeft((current) =>
+      current.map((seconds, timerIndex) =>
+        timerIndex === index ? Math.max(60, seconds + amount * 60) : seconds,
+      ),
+    );
+  }
+
   return (
     <div className="routine-timers" aria-label="Study phase timers">
       <div className="routine-timers-heading">
@@ -210,21 +221,67 @@ function RoutineTimers({ totalMinutes }: { totalMinutes: number }) {
       <div className="routine-timer-grid">
         {phases.map((phase, index) => (
           <div className={`routine-timer ${runningPhase === index ? "active" : ""}`} key={phase.name}>
-            <div>
+            <div className="routine-timer-label">
               <strong>{phase.name}</strong>
               <span>{phase.minutes} min allotted</span>
             </div>
-            <output aria-label={`${phase.name} time remaining`}>{formatTimer(secondsLeft[index])}</output>
+            <div
+              className="routine-timer-progress"
+              style={{ "--timer-progress": `${(secondsLeft[index] / (phase.minutes * 60)) * 100}%` } as React.CSSProperties}
+            >
+              <output aria-label={`${phase.name} time remaining`}>{formatTimer(secondsLeft[index])}</output>
+            </div>
             <div className="routine-timer-actions">
               <button
                 type="button"
-                className="routine-timer-button"
+                className="routine-timer-adjust"
+                aria-label={`Subtract one minute from ${phase.name} timer`}
+                title="Subtract 1 minute"
+                onClick={() => adjustTimer(index, -1)}
+                disabled={runningPhase !== null}
+              >
+                <Minus size={12} /> 1
+              </button>
+              <button
+                type="button"
+                className="routine-timer-adjust"
+                aria-label={`Subtract five minutes from ${phase.name} timer`}
+                title="Subtract 5 minutes"
+                onClick={() => adjustTimer(index, -5)}
+                disabled={runningPhase !== null}
+              >
+                <Minus size={12} /> 5
+              </button>
+              <button
+                type="button"
+                className="routine-timer-adjust"
+                aria-label={`Add one minute to ${phase.name} timer`}
+                title="Add 1 minute"
+                onClick={() => adjustTimer(index, 1)}
+                disabled={runningPhase !== null}
+              >
+                <Plus size={12} /> 1
+              </button>
+              <button
+                type="button"
+                className="routine-timer-adjust"
+                aria-label={`Add five minutes to ${phase.name} timer`}
+                title="Add 5 minutes"
+                onClick={() => adjustTimer(index, 5)}
+                disabled={runningPhase !== null}
+              >
+                <Plus size={12} /> 5
+              </button>
+              <button
+                type="button"
+                className="routine-timer-start"
                 aria-label={`${runningPhase === index ? "Pause" : "Start"} ${phase.name} timer`}
                 title={`${runningPhase === index ? "Pause" : "Start"} ${phase.name} timer`}
                 onClick={() => setRunningPhase(runningPhase === index ? null : index)}
                 disabled={secondsLeft[index] === 0}
               >
                 {runningPhase === index ? <Pause size={14} /> : <Play size={14} />}
+                <span>{runningPhase === index ? "Pause" : "Start"}</span>
               </button>
               <button
                 type="button"
@@ -236,7 +293,7 @@ function RoutineTimers({ totalMinutes }: { totalMinutes: number }) {
                   setSecondsLeft((current) => current.map((seconds, timerIndex) => timerIndex === index ? phase.minutes * 60 : seconds));
                 }}
               >
-                <RotateCcw size={14} />
+                <TimerReset size={14} />
               </button>
             </div>
           </div>

@@ -313,12 +313,43 @@
 }
 
 .routine-timers {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     margin: 20px 0 8px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(196, 145, 255, .18)
+    padding: 18px 14px 14px;
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(48, 26, 88, .82), rgba(18, 32, 75, .78)), radial-gradient(circle at 50% 52%, rgba(255, 102, 83, .92), transparent 42%), linear-gradient(110deg, #5541d9, #d326bb 48%, #5045d9);
+    box-shadow: 0 18px 36px rgba(18, 8, 45, .3);
+    background-size: 100% 100%, 150% 150%, 180% 180%;
+    animation: routine-sunset 14s ease-in-out infinite alternate
+}
+
+.routine-timers::before {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(circle at 50% 58%, rgba(255, 105, 84, .74), transparent 34%), radial-gradient(circle at 10% 18%, rgba(112, 103, 255, .72), transparent 40%), radial-gradient(circle at 94% 72%, rgba(195, 42, 216, .65), transparent 38%);
+    content: "";
+    filter: blur(18px);
+    transform: scale(1.08);
+    animation: routine-sunset-glow 10s ease-in-out infinite alternate
+}
+
+@keyframes routine-sunset {
+    from { background-position: 0 0, 38% 42%, 0% 50%; }
+    to { background-position: 0 0, 62% 58%, 100% 50%; }
+}
+
+@keyframes routine-sunset-glow {
+    from { opacity: .72; transform: scale(1.08) translate3d(-1%, 1%, 0); }
+    to { opacity: 1; transform: scale(1.15) translate3d(1%, -1%, 0); }
 }
 
 .routine-timers-heading {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: baseline;
     justify-content: space-between;
@@ -338,24 +369,38 @@
 }
 
 .routine-timer-grid {
+    position: relative;
+    z-index: 1;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px
 }
 
 .routine-timer {
+    min-width: 0;
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 10px;
+    gap: 9px;
     padding: 12px;
     border: 1px solid rgba(196, 145, 255, .16);
     border-radius: 10px;
-    background: rgba(8, 7, 14, .34)
+    background: rgba(8, 7, 14, .34);
+    backdrop-filter: blur(8px)
 }
 
 .routine-timer.active {
     border-color: rgba(192, 132, 252, .7);
     background: rgba(192, 132, 252, .1)
+}
+
+.routine-timer-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px
+}
+
+.routine-timer-label span {
+    white-space: nowrap
 }
 
 .routine-timer strong,
@@ -375,14 +420,64 @@
 }
 
 .routine-timer output {
-    color: #d8b4fe;
-    font: 600 16px/1 'DM Mono', monospace
+    display: block;
+    padding: 13px 10px 11px;
+    border: 1px solid rgba(196, 145, 255, .14);
+    border-radius: 7px;
+    background: linear-gradient(90deg, rgba(192, 132, 252, .14) var(--timer-progress), rgba(255, 255, 255, .035) var(--timer-progress));
+    color: #f5f3ff;
+    font: 600 24px/1 'DM Mono', monospace;
+    letter-spacing: .02em;
+    text-align: center
 }
 
 .routine-timer-actions {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+    column-gap: 5px;
+    row-gap: 12px
+}
+
+.routine-timer-adjust,
+.routine-timer-start {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-height: 27px;
+    padding: 0 7px;
+    border: 1px solid rgba(196, 145, 255, .22);
+    border-radius: 6px;
+    background: rgba(192, 132, 252, .06);
+    color: #b9acc5;
+    font: 600 10px/1 'DM Mono', monospace;
+    cursor: pointer
+}
+
+.routine-timer-adjust {
+    grid-row: 1;
+    min-width: 0
+}
+
+.routine-timer-start {
     grid-column: 1 / -1;
-    gap: 6px
+    grid-row: 2;
+    justify-self: center;
+    width: 130px;
+    min-height: 42px;
+    padding: 0 16px;
+    border: 1px solid rgba(255, 255, 255, .9);
+    border-radius: 40px;
+    background: linear-gradient(135deg, #7c3aed, #c026d3);
+    box-shadow: 0 7px 16px rgba(124, 58, 237, .3);
+    color: #fff;
+    font-size: 12px;
+    transition: background .2s ease, box-shadow .2s ease, transform .2s ease
+}
+
+.routine-timer-start span {
+    margin-top: 0;
+    color: #fff;
 }
 
 .routine-timer-button {
@@ -396,7 +491,9 @@
     border-radius: 7px;
     background: rgba(192, 132, 252, .08);
     color: #d8b4fe;
-    cursor: pointer
+    cursor: pointer;
+    grid-column: 5;
+    grid-row: 1
 }
 
 .routine-timer-button:hover:not(:disabled),
@@ -410,6 +507,35 @@
 .routine-timer-button:disabled {
     cursor: not-allowed;
     opacity: .45
+}
+
+.routine-timer-adjust:hover:not(:disabled),
+.routine-timer-adjust:focus-visible {
+    border-color: #c084fc;
+    background: rgba(192, 132, 252, .18);
+    color: #fff;
+    outline: none
+}
+
+.routine-timer-start:hover:not(:disabled),
+.routine-timer-start:focus-visible {
+    background: transparent;
+    color: #fff;
+    outline: none;
+    box-shadow: 0 9px 20px rgba(255, 255, 255, .12);
+    transform: translateY(-1px)
+}
+
+.routine-timer-adjust:disabled,
+.routine-timer-start:disabled {
+    cursor: not-allowed;
+    opacity: .45
+}
+
+@media(max-width:900px) {
+    .routine-timer-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media(max-width:640px) {
@@ -429,6 +555,10 @@
         align-items: flex-start;
         flex-direction: column;
         gap: 4px
+    }
+
+    .routine-timers {
+        padding: 16px 10px 10px
     }
 }
 
