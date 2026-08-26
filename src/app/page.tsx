@@ -13,6 +13,9 @@ import {
   Sparkles,
   Target,
   ArrowRightLeft,
+  Pause,
+  Play,
+  RotateCcw,
   WandSparkles,
   X,
 } from "lucide-react";
@@ -27,7 +30,7 @@ import Silk from "./components/Silk";
 import Dither from "./components/Dither";
 import TargetCursor from "./components/TargetCursor";
 import CardNav from "./components/CardNav";
-import { buildStudyRoutine } from "../lib/studyRoutine";
+import { buildStudyRoutine, getStudyPhases, normalizePrepMinutes } from "../lib/studyRoutine";
 import Image from "next/image";
 import chronoLogo from "./logo.png";
 
@@ -161,6 +164,83 @@ function NoteBody({ note, topic }: { note: string; topic: string }) {
         >
           {renderableContent}
         </ReactMarkdown>
+      </div>
+    </div>
+  );
+}
+
+function RoutineTimers({ totalMinutes }: { totalMinutes: number }) {
+  const phases = getStudyPhases(totalMinutes);
+  const [secondsLeft, setSecondsLeft] = useState(() =>
+    phases.map((phase) => phase.minutes * 60),
+  );
+  const [runningPhase, setRunningPhase] = useState<number | null>(null);
+
+  useEffect(() => {
+    setSecondsLeft(phases.map((phase) => phase.minutes * 60));
+    setRunningPhase(null);
+  }, [totalMinutes]);
+
+  useEffect(() => {
+    if (runningPhase === null) return;
+    if (secondsLeft[runningPhase] === 0) {
+      setRunningPhase(null);
+      return;
+    }
+    const timeout = window.setTimeout(() => {
+      setSecondsLeft((current) =>
+        current.map((seconds, index) =>
+          index === runningPhase ? Math.max(0, seconds - 1) : seconds,
+        ),
+      );
+    }, 1000);
+    return () => window.clearTimeout(timeout);
+  }, [runningPhase, secondsLeft]);
+
+  function formatTimer(seconds: number) {
+    return `${Math.floor(seconds / 60).toString().padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
+  }
+
+  return (
+    <div className="routine-timers" aria-label="Study phase timers">
+      <div className="routine-timers-heading">
+        <span>Phase timers</span>
+        <small>Start each block when you are ready</small>
+      </div>
+      <div className="routine-timer-grid">
+        {phases.map((phase, index) => (
+          <div className={`routine-timer ${runningPhase === index ? "active" : ""}`} key={phase.name}>
+            <div>
+              <strong>{phase.name}</strong>
+              <span>{phase.minutes} min allotted</span>
+            </div>
+            <output aria-label={`${phase.name} time remaining`}>{formatTimer(secondsLeft[index])}</output>
+            <div className="routine-timer-actions">
+              <button
+                type="button"
+                className="routine-timer-button"
+                aria-label={`${runningPhase === index ? "Pause" : "Start"} ${phase.name} timer`}
+                title={`${runningPhase === index ? "Pause" : "Start"} ${phase.name} timer`}
+                onClick={() => setRunningPhase(runningPhase === index ? null : index)}
+                disabled={secondsLeft[index] === 0}
+              >
+                {runningPhase === index ? <Pause size={14} /> : <Play size={14} />}
+              </button>
+              <button
+                type="button"
+                className="routine-timer-button"
+                aria-label={`Reset ${phase.name} timer`}
+                title={`Reset ${phase.name} timer`}
+                onClick={() => {
+                  setRunningPhase(null);
+                  setSecondsLeft((current) => current.map((seconds, timerIndex) => timerIndex === index ? phase.minutes * 60 : seconds));
+                }}
+              >
+                <RotateCcw size={14} />
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -683,6 +763,7 @@ export default function Home() {
               >
                 {routine}
               </ReactMarkdown>
+              <RoutineTimers totalMinutes={normalizePrepMinutes(prepAmount, prepUnit)} />
             </div>
           )}
           <div ref={noteAreaRef}>

@@ -26,6 +26,23 @@ export function formatStudyDuration(totalMinutes: number): string {
   return `${totalMinutes} minute${totalMinutes === 1 ? "" : "s"}`;
 }
 
+export type StudyPhase = {
+  name: string;
+  minutes: number;
+};
+
+export function getStudyPhases(totalMinutes: number): StudyPhase[] {
+  const warmup = Math.max(5, Math.min(12, Math.round(totalMinutes * 0.15)));
+  const review = Math.max(10, Math.min(20, Math.round(totalMinutes * 0.2)));
+  const core = Math.max(15, totalMinutes - warmup - review);
+
+  return [
+    { name: "Warm-up", minutes: warmup },
+    { name: "Core study", minutes: core },
+    { name: "Review", minutes: review },
+  ];
+}
+
 export function buildStudyRoutine(
   topic: string,
   prepValue: number | string,
@@ -33,9 +50,9 @@ export function buildStudyRoutine(
   unit: PrepUnit = "minutes",
 ): string {
   const totalMinutes = normalizePrepMinutes(prepValue, unit);
-  const warmup = Math.max(5, Math.min(12, Math.round(totalMinutes * 0.15)));
-  const review = Math.max(10, Math.min(20, Math.round(totalMinutes * 0.2)));
-  const core = Math.max(15, totalMinutes - warmup - review);
+  const [warmup, core, review] = getStudyPhases(totalMinutes).map(
+    (phase) => phase.minutes,
+  );
 
   const focusLine = /exam|test|quiz/i.test(goal)
     ? "Prioritize the most likely exam themes and recall the key definitions quickly."
