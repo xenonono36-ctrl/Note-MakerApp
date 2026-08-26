@@ -10,6 +10,18 @@ The app is designed for active learning rather than passive summarization. Gener
 
 The screenshot shows the Chrono Notes workspace with its personalized study setup, animated atmosphere, FAQ, and saved-note workflow.
 
+### Generated Study Note
+
+![Generated Chrono Notes study note](public/chrono-notes-generated-note.png)
+
+This example was generated from the question “How do neural networks learn?” and includes structured sections, a study focus, explanations, examples, and review material.
+
+### Study Routine and Timers
+
+![Chrono Notes study routine and phase timers](public/chrono-notes-study-routine.png)
+
+Each generated note can include a preparation plan with warm-up, core study, and review phases. The phase timers can be started, paused, adjusted, and reset independently.
+
 ## Features
 
 - Generate study notes from a topic or question.
