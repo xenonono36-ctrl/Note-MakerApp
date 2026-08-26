@@ -30,7 +30,7 @@ import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 import "katex/dist/katex.min.css";
 import Silk from "./components/Silk";
-import Dither from "./components/Dither";
+import Grainient from "./components/Grainient";
 import TargetCursor from "./components/TargetCursor";
 import CardNav from "./components/CardNav";
 import { buildStudyRoutine, getStudyPhases, normalizePrepMinutes } from "../lib/studyRoutine";
@@ -683,20 +683,39 @@ export default function Home() {
       </aside>
       <section className="workspace">
         <div className="workspace-atmosphere">
-          {alternateBackground ? (
-            <Dither
-              waveColor={[0.38823529411764707, 0.4, 0.9450980392156862]}
-              waveSpeed={0.05}
-              waveFrequency={3}
-              waveAmplitude={0.35}
-              colorNum={4}
-              pixelSize={2}
-              enableMouseInteraction
-              mouseRadius={0.3}
-            />
-          ) : (
-            <Silk speed={5} scale={1.1} color="#7C3AED" noiseIntensity={1.2} rotation={0.15} />
-          )}
+          <Silk
+            className={alternateBackground ? "theme-hidden" : ""}
+            speed={5}
+            scale={1.1}
+            color="#7C3AED"
+            noiseIntensity={1.2}
+            rotation={0.15}
+          />
+          <Grainient
+            className={alternateBackground ? "" : "theme-hidden"}
+              color1="#FF9FFC"
+              color2="#5227FF"
+              color3="#B497CF"
+              timeSpeed={0.25}
+              colorBalance={0}
+              warpStrength={1}
+              warpFrequency={5}
+              warpSpeed={2}
+              warpAmplitude={50}
+              blendAngle={0}
+              blendSoftness={0.05}
+              rotationAmount={500}
+              noiseScale={2}
+              grainAmount={0.1}
+              grainScale={2}
+              grainAnimated={false}
+              contrast={1.5}
+              gamma={1}
+              saturation={1}
+              centerX={0}
+              centerY={0}
+              zoom={0.9}
+          />
         </div>
         <CardNav
           topic={topic}

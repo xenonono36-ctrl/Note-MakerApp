@@ -97,7 +97,7 @@ export default function CardNav({
           </div>
           <div className="nav-card nav-card-cyan" ref={setCardRef(2)}>
             <div className="nav-card-label">Atmosphere</div>
-            <strong>{alternateBackground ? "Dither field" : "Silk field"}</strong>
+            <strong>{alternateBackground ? "Grainient field" : "Silk field"}</strong>
             <span className="nav-card-meta">Change the workspace mood</span>
             <button type="button" className="nav-card-link nav-card-action" onClick={onToggleBackground}>
               {alternateBackground ? <Sun size={15} /> : <Moon size={15} />} Switch background <ArrowUpRight size={15} />
