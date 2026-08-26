@@ -1270,6 +1270,7 @@
         position: sticky;
         top: 88px;
         align-self: start;
+        margin-top: 36px;
         display: flex;
         flex-direction: column;
         gap: 12px;
@@ -1280,7 +1281,7 @@
         border-radius: 14px;
         background: rgba(11,7,18,.84);
         box-shadow: 0 14px 30px rgba(5,3,12,.25);
-        overflow: visible !important;
+        overflow: hidden;
         backdrop-filter: blur(18px) saturate(135%);
     }
 
