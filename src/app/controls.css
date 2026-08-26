@@ -241,7 +241,8 @@
     border: 1px solid rgba(196, 145, 255, .25);
     border-radius: 14px;
     background: linear-gradient(135deg, rgba(26, 16, 40, .9), rgba(13, 18, 26, .8));
-    box-shadow: 0 16px 38px rgba(11, 8, 18, .18)
+    box-shadow: 0 16px 38px rgba(11, 8, 18, .18);
+    font-family: var(--font-manrope), sans-serif;
 }
 
 .routine-card-header {
