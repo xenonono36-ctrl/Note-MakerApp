@@ -1594,6 +1594,7 @@
 .specifications {
     width: min(100%, 1050px);
     margin: 72px auto 0;
+    font-family: var(--font-manrope), sans-serif;
 }
 
 .product-overview {
@@ -1754,5 +1755,317 @@
 
     .specification-card dd {
         text-align: left;
+    }
+}
+
+.how-it-works,
+.comparison-section,
+.faq-section {
+    width: min(100%, 1050px);
+    margin: 84px auto 0;
+    padding: 56px 0 0;
+    border-top: 1px solid rgba(216,180,254,.14);
+    font-family: var(--font-manrope), sans-serif;
+}
+
+.section-heading-centered {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.section-heading-centered .product-overview-label {
+    margin-bottom: 12px;
+}
+
+.section-heading-centered h2 {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(26px, 3vw, 38px);
+    letter-spacing: -.02em;
+}
+
+.process-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.process-card {
+    min-height: 275px;
+    padding: 28px 24px;
+    border: 1px solid rgba(216,180,254,.2);
+    border-radius: 14px;
+    background: rgba(16,9,26,.6);
+    text-align: center;
+    transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+.process-card:hover {
+    border-color: rgba(192,132,252,.65);
+    box-shadow: 0 16px 34px rgba(5,3,12,.2);
+    transform: translateY(-3px);
+}
+
+.process-number {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 18px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #7c3aed, #c084fc);
+    color: #fff;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.process-card h3 {
+    margin: 0 0 10px;
+    color: #f8f5ff;
+    font-size: 17px;
+}
+
+.process-card p {
+    margin: 0;
+    color: #bbaecc;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.comparison-table-wrap {
+    overflow-x: auto;
+    border: 1px solid rgba(216,180,254,.2);
+    border-radius: 14px;
+    background: rgba(16,9,26,.62);
+}
+
+.comparison-table {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.comparison-table th,
+.comparison-table td {
+    padding: 16px 18px;
+    border-bottom: 1px solid rgba(216,180,254,.1);
+    color: #bbaecc;
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: left;
+    vertical-align: top;
+}
+
+.comparison-table thead th {
+    color: #f5f3ff;
+    font-size: 13px;
+    font-weight: 700;
+    background: rgba(255,255,255,.04);
+}
+
+.comparison-table tbody th {
+    width: 22%;
+    color: #f5f3ff;
+    font-weight: 600;
+}
+
+.comparison-table .comparison-highlight {
+    background: rgba(192,132,252,.1);
+}
+
+.comparison-table td.positive {
+    color: #b7f3cc;
+    font-weight: 600;
+}
+
+.comparison-table tr:last-child th,
+.comparison-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.comparison-note {
+    margin: 0;
+    padding: 14px 18px;
+    border-top: 1px solid rgba(216,180,254,.1);
+    color: #8f829e;
+    font-size: 11px;
+    text-align: center;
+}
+
+.faq-section {
+    padding-bottom: 72px;
+}
+
+.faq-list {
+    width: min(100%, 780px);
+    margin: 0 auto;
+}
+
+.faq-item {
+    border-bottom: 1px solid rgba(216,180,254,.16);
+}
+
+.faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 18px;
+    padding: 17px 4px;
+    border: 0;
+    background: transparent;
+    color: #f5f3ff;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+}
+
+.faq-question:hover,
+.faq-question:focus-visible {
+    color: #d8b4fe;
+    outline: none;
+}
+
+.faq-question svg {
+    flex: 0 0 auto;
+    color: #c084fc;
+    transition: transform .2s ease;
+}
+
+.faq-item.is-open .faq-question svg {
+    transform: rotate(180deg);
+}
+
+.faq-answer {
+    max-width: 700px;
+    margin: -2px 38px 0 4px;
+    padding: 0 0 18px;
+    color: #bbaecc;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.site-footer {
+    margin-top: 24px;
+    padding: 58px max(24px, calc((100% - 1050px) / 2)) 24px;
+    border-top: 1px solid rgba(216,180,254,.12);
+    background: #09060f;
+    font-family: var(--font-manrope), sans-serif;
+}
+
+.site-footer-inner {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr;
+    gap: 48px;
+}
+
+.site-footer-brand {
+    max-width: 300px;
+}
+
+.footer-logo {
+    width: 112px;
+    height: 62px;
+    object-fit: contain;
+    object-position: left center;
+}
+
+.site-footer-brand p {
+    margin: 12px 0 0;
+    color: #93869f;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.site-footer-column {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 11px;
+}
+
+.site-footer-column span {
+    margin-bottom: 4px;
+    color: #7f728c;
+    font: 600 10px 'DM Mono', monospace;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.site-footer-column a {
+    color: #c7bdd0;
+    font-size: 13px;
+    text-decoration: none;
+    transition: color .2s ease;
+}
+
+.site-footer-column button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #c7bdd0;
+    font-size: 13px;
+    text-align: left;
+    cursor: none;
+    transition: color .2s ease;
+}
+
+.site-footer-column a:hover,
+.site-footer-column a:focus-visible,
+.site-footer-column button:hover,
+.site-footer-column button:focus-visible {
+    color: #fff;
+    outline: none;
+}
+
+.site-footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 48px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(216,180,254,.12);
+    color: #70637b;
+    font-size: 11px;
+}
+
+@media(max-width:800px) {
+    .how-it-works,
+    .comparison-section,
+    .faq-section {
+        margin-top: 60px;
+        padding-top: 42px;
+    }
+
+    .process-grid,
+    .site-footer-inner {
+        grid-template-columns: 1fr;
+    }
+
+    .process-card {
+        min-height: 0;
+    }
+
+    .site-footer {
+        padding-right: 20px;
+        padding-left: 20px;
+    }
+}
+
+@media(max-width:520px) {
+    .faq-question {
+        padding: 15px 0;
+        font-size: 13px;
+    }
+
+    .faq-answer {
+        margin-right: 20px;
+    }
+
+    .site-footer-bottom {
+        align-items: flex-start;
+        flex-direction: column;
+        margin-top: 36px;
     }
 }

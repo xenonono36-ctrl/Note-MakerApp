@@ -77,6 +77,33 @@ Try the **question ladder**: start broad, then narrow. Ask what someone notices,
 2. When might a closed question be more useful than an open one?
 3. Rewrite “Why is our product confusing?” using the question ladder.`;
 
+const faqItems = [
+  {
+    question: "What is Chrono Notes?",
+    answer: "Chrono Notes turns a topic, question, or uploaded source into a structured study note. You can tailor the note to your level, goal, focus, and available preparation time.",
+  },
+  {
+    question: "What files can I use as study sources?",
+    answer: "You can attach PDF, TXT, Markdown, and HTML files. Chrono uses attached sources as evidence and surfaces when source material is incomplete or has been truncated.",
+  },
+  {
+    question: "How does Chrono personalize a study note?",
+    answer: "Choose beginner, intermediate, or advanced level; select a study guide, deep dive, or cheat sheet; set a learning goal and focus; and provide the time you have available.",
+  },
+  {
+    question: "Does Chrono create a study routine too?",
+    answer: "Yes. Each generated note includes a time-aware routine with warm-up, core study, and review phases when useful. You can start, pause, adjust, and reset each phase timer.",
+  },
+  {
+    question: "Can I export or keep my notes?",
+    answer: "Generated notes are saved in your browser library, with support for copying the Markdown content, opening an HTML version, and downloading an HTML file for use elsewhere.",
+  },
+  {
+    question: "Should I verify an AI-generated note?",
+    answer: "Yes. Treat every generated note as a draft. Compare important claims against your source material, instructor guidance, or authoritative references before relying on it for an exam or professional decision.",
+  },
+];
+
 const goalOptions = [
   "Understand and remember the key information",
   "Prepare for an exam",
@@ -436,6 +463,7 @@ export default function Home() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [libraryQuery, setLibraryQuery] = useState("");
   const [isSetupOpen, setIsSetupOpen] = useState(true);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const noteAreaRef = useRef<HTMLDivElement>(null);
 
   const noteSettings: NoteSettings = { level, format, focus, goal, prepAmount, prepUnit };
@@ -943,7 +971,7 @@ export default function Home() {
               <RoutineTimers totalMinutes={normalizePrepMinutes(prepAmount, prepUnit)} />
             </div>
           )}
-          <div ref={noteAreaRef}>
+          <div id="note-area" ref={noteAreaRef}>
             {note ? <NoteBody note={note} topic={topic} /> : <div className="empty-note-state"><div className="empty-note-icon"><FileText size={24} /></div><span className="note-kicker">Your note will appear here</span><h2>Start with a question worth exploring.</h2><p>Give Chrono a topic, goal, and time budget. Your study guide will be saved here automatically.</p><button type="button" className="example-button cursor-target" onClick={() => { setTopic("How do neural networks learn?"); setNote(sampleNote); setIsSetupOpen(false); }}>Preview an example</button></div>}
           </div>
           {note && <footer className="footer-note">
@@ -986,7 +1014,62 @@ export default function Home() {
               <span><Timer size={16} aria-hidden="true" /> Time-aware routines</span>
             </div>
           </section>
+          <section id="how-it-works" className="how-it-works" aria-labelledby="how-it-works-heading">
+            <div className="section-heading-centered">
+              <div className="product-overview-label">How it works</div>
+              <h2 id="how-it-works-heading">Build a study note in three steps</h2>
+            </div>
+            <div className="process-grid">
+              <article className="process-card"><div className="process-number">1</div><h3>Ask a clear question</h3><p>Start with a topic or question. Add your own PDF, TXT, Markdown, or HTML sources when the note needs to stay grounded in your material.</p></article>
+              <article className="process-card"><div className="process-number">2</div><h3>Shape the study session</h3><p>Choose your learning level, note format, focus, goal, and available preparation time so the output fits the way you actually need to study.</p></article>
+              <article className="process-card"><div className="process-number">3</div><h3>Read, practice, and export</h3><p>Review the generated guide, use its routine timers and questions, then copy or download the note when it is ready to take with you.</p></article>
+            </div>
+          </section>
+          <section id="comparison" className="comparison-section" aria-labelledby="comparison-heading">
+            <div className="section-heading-centered">
+              <div className="product-overview-label">Comparison</div>
+              <h2 id="comparison-heading">A focused workspace for study notes</h2>
+            </div>
+            <div className="comparison-table-wrap">
+              <table className="comparison-table">
+                <thead><tr><th>Capability</th><th className="comparison-highlight">Chrono Notes</th><th>General chat tools</th><th>Meeting transcribers</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">Study setup controls</th><td className="comparison-highlight positive">Yes: level, format, focus, goal, and time</td><td>Prompt-dependent</td><td>Usually not study-specific</td></tr>
+                  <tr><th scope="row">Source formats</th><td className="comparison-highlight positive">PDF, TXT, Markdown, and HTML</td><td>Varies by tool</td><td>Usually audio and transcripts</td></tr>
+                  <tr><th scope="row">Time-aware study routine</th><td className="comparison-highlight positive">Built in with phase timers</td><td>Manual prompting</td><td>Not typically included</td></tr>
+                  <tr><th scope="row">Portable output</th><td className="comparison-highlight positive">Copy Markdown or export HTML</td><td>Varies by tool</td><td>Usually transcript exports</td></tr>
+                  <tr><th scope="row">Saved note library</th><td className="comparison-highlight positive">Browser-based library, up to 20 notes</td><td>Account-dependent</td><td>Account-dependent</td></tr>
+                </tbody>
+              </table>
+              <p className="comparison-note">This comparison describes Chrono Notes’ current workflow and broad tool categories. Capabilities vary across individual products.</p>
+            </div>
+          </section>
+          <section id="faq" className="faq-section" aria-labelledby="faq-heading">
+            <div className="section-heading-centered">
+              <div className="product-overview-label">FAQ</div>
+              <h2 id="faq-heading">Questions about Chrono Notes</h2>
+            </div>
+            <div className="faq-list">
+              {faqItems.map((item, index) => {
+                const isOpen = openFaq === index;
+                return <div className={`faq-item${isOpen ? " is-open" : ""}`} key={item.question}>
+                  <button type="button" className="faq-question cursor-target" aria-expanded={isOpen} onClick={() => setOpenFaq(isOpen ? null : index)}>
+                    <span>{item.question}</span><ChevronDown size={18} aria-hidden="true" />
+                  </button>
+                  {isOpen && <p className="faq-answer">{item.answer}</p>}
+                </div>;
+              })}
+            </div>
+          </section>
         </div>
+        <footer className="site-footer">
+          <div className="site-footer-inner">
+            <div className="site-footer-brand"><Image className="footer-logo" src={chronoLogo} alt="Chrono" /><p>A focused AI study workspace for turning questions into useful notes.</p></div>
+            <div className="site-footer-column"><span>Workspace</span><button type="button" onClick={() => { resetToNewNote(); document.getElementById("topic")?.scrollIntoView({ behavior: "smooth", block: "center" }); }}>New study note</button><a href="#how-it-works">How it works</a><a href="#comparison">Compare capabilities</a></div>
+            <div className="site-footer-column"><span>Resources</span><a href="#faq">Frequently asked questions</a><a href="#specifications-heading">Specifications</a><a href="#note-area">Current note</a></div>
+          </div>
+          <div className="site-footer-bottom"><span>© 2026 Chrono Notes</span><span>Powered by Gemini · Made for focused learning</span></div>
+        </footer>
       </section>
     </main>
   );
