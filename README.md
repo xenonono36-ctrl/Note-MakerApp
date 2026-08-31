@@ -6,9 +6,9 @@ The app is designed for active learning rather than passive summarization. Gener
 
 ## Demo
 
-![Chrono Notes demo](public/chrono-notes-demo.png)
+![Chrono Notes demo](public/chrono-notes-demo.png) 
 
-The screenshot shows the Chrono Notes workspace with its personalized study setup, animated atmosphere, FAQ, and saved-note workflow.
+The screenshot shows the Chrono Notes workspace with its personalized study setup, animated atmosphere, FAQ, and saved-note workflow. 
 
 ### Generated Study Note
 
