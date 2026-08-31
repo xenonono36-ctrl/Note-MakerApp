@@ -7,7 +7,7 @@ import {
   ExternalLink,
   FileCode,
   FileText,
-  LoaderCircle,
+  LoaderCircle, 
   Minus,
   Paperclip,
   PanelLeft,
