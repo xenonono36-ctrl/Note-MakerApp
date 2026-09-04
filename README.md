@@ -2,7 +2,7 @@
 
 Chrono Notes is a focused AI study workspace powered by Google Gemini. Give it a topic or question, optionally attach source material, and generate a structured study note tailored to your level, learning goal, focus, and available preparation time.
 
-The app is designed for active learning rather than passive summarization. Generated notes can include explanations, definitions, examples, tables, diagrams, review questions, takeaways, and a practical study routine.
+The app is designed for active learning rather than passive summarization. Generated notes can include explanations, definitions, examples, tables, diagrams, review questions, takeaways, and a practical study routine. 
 
 ## Demo
 
