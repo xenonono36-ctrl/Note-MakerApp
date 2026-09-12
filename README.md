@@ -16,7 +16,7 @@ The screenshot shows the Chrono Notes workspace with its personalized study setu
 
 This example was generated from the question “How do neural networks learn?” and includes structured sections, a study focus, explanations, examples, and review material.
 
-### Study Routine and Timers
+### Study Routine and Timers 
 
 ![Chrono Notes study routine and phase timers](public/chrono-notes-study-routine.png)
 
