@@ -12,7 +12,7 @@ The screenshot shows the Chrono Notes workspace with its personalized study setu
 
 ### Generated Study Note
 
-![Generated Chrono Notes study note](public/chrono-notes-generated-note.png)
+![Generated Chrono Notes study note](public/chrono-notes-generated-note.png)   
 
 This example was generated from the question “How do neural networks learn?” and includes structured sections, a study focus, explanations, examples, and review material.
 
